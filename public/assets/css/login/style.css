@@ -1,0 +1,35 @@
+@media print {
+    @page {
+        margin: 5mm; /* Define margens estreitas para a impressão */
+    }
+    body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    body * {
+        visibility: hidden;
+    }
+    #toHide {
+        display: none;
+    }
+    #modalTermo, #modalTermo * {
+        visibility: visible;
+    }
+    #modalTermo {
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: block !important; /* Força o modal a ser exibido */
+        width: 100%; /* Garante que o modal ocupe toda a largura da folha */
+    }
+    .modal-footer {
+        margin: 0;
+        padding: 0;
+    }
+    /* Oculta os botões de fechar e imprimir */
+    .modal-header .btn-close,
+    .modal-footer button {
+        display: none !important;
+    }
+}
