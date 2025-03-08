@@ -236,3 +236,67 @@
 
 	</body>
 </html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        checkAuthStatus();
+    });
+
+    function checkAuthStatus() {
+        const token = localStorage.getItem("jwt_token");
+
+        if (!token) {
+            document.getElementById("auth-section").innerHTML = "<p>Você não está logado.</p>";
+            document.getElementById("login-button").style.display = "inline-block";
+            document.getElementById("logout-button").style.display = "none";
+        } else {
+            const userData = parseJwt(token);
+            if (!userData) {
+                logout();
+                return;
+            }
+
+            document.getElementById("auth-section").innerHTML = `
+                <p>Bem-vindo, <strong>${userData.nome}</strong>!</p>
+                <p>Nível de Acesso: <strong>${userData.nivel}</strong></p>
+            `;
+            document.getElementById("login-button").style.display = "none";
+            document.getElementById("logout-button").style.display = "inline-block";
+        }
+    }
+
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(atob(base64));
+        } catch (e) {
+            console.error("Token inválido", e);
+            return null;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("jwt_token");
+        window.location.reload(); // Recarrega a página para refletir o logout
+    }
+
+    // ✅ Adiciona automaticamente o token em todas as requisições AJAX/FETCH
+    function getHeaders() {
+        const token = localStorage.getItem("jwt_token");
+        return token ? { "Authorization": "Bearer " + token } : {};
+    }
+
+    async function fetchProtectedData(url, options = {}) {
+        options.headers = {
+            ...options.headers,
+            ...getHeaders()
+        };
+
+        const response = await fetch(url, options);
+        if (response.status === 401) {
+            logout(); // Se o token for inválido, faz logout automático
+        }
+        return response.json();
+    }
+</script>
