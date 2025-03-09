@@ -9,13 +9,19 @@ class SSOController extends ResourceController
     public function callback()
     {
         $code = $this->request->getGet('code');
-        $idSistema = 2; // ID do sistema filho
+
+        $idSistema = getenv('SISTEMA_ID');
+        $ssoBaseUrl = getenv('SSO_BASE_URL');
+
+        if (!$idSistema) {
+            return $this->fail('ID do sistema não configurado no .env.');
+        }
 
         if (!$code) {
             return $this->fail('Código de autorização ausente.');
         }
 
-        $url = "http://localhost/e-prefeitura/sso/token?code={$code}&sistema={$idSistema}";
+        $url = "{$ssoBaseUrl}/sso/token?code={$code}&sistema={$idSistema}";
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -23,6 +29,7 @@ class SSOController extends ResourceController
         curl_close($ch);
 
         $data = json_decode($response, true);
+        echo "<pre>"; dd(print_r($data));
 
         if (!isset($data['access_token'])) {
             return $this->fail('Erro ao obter token JWT.');

@@ -11,7 +11,7 @@
 </div>
 
 <!-- Botão de Login -->
-<a id="login-button" href="http://localhost/e-prefeitura/sso/login?redirect=<?php echo base_url('callback'); ?>&sistema=2">
+<a id="login-button" href="<?= esc($ssoBaseUrl) ?>/sso/login?redirect=<?= base_url('callback'); ?>&sistema=<?= esc($idSistema) ?>">
     <button>Logar com e-Prefeitura</button>
 </a>
 

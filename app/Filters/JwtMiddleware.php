@@ -11,10 +11,12 @@ use Firebase\JWT\Key;
 class JwtMiddleware implements FilterInterface
 {
     private $jwtSecret;
+    private $idSistema;
 
     public function __construct()
     {
         $this->jwtSecret = getenv('JWT_SECRET'); // Obtém a chave do .env
+        $this->idSistema = getenv('SISTEMA_ID'); // Obtém o ID do sistema do .env
     }
 
     public function before(RequestInterface $request, $arguments = null)
@@ -31,9 +33,13 @@ class JwtMiddleware implements FilterInterface
         try {
             $decoded = JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
 
+            // Verifica se o ID do sistema está configurado corretamente
+            if (!$this->idSistema) {
+                return service('response')->setJSON(['error' => 'Configuração de sistema ausente no .env.'])->setStatusCode(500);
+            }
+
             // Verifica se o usuário tem permissão para este sistema
-            $idSistema = 2; // Defina o ID do sistema filho
-            if ($decoded->id_sistema != $idSistema) {
+            if ($decoded->id_sistema != $this->idSistema) {
                 return service('response')->setJSON(['error' => 'Acesso negado. Sistema não autorizado.'])->setStatusCode(403);
             }
 

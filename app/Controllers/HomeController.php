@@ -13,6 +13,12 @@ class HomeController extends BaseController
 
     public function index()
     {
-        return view('base/inicio');
+        $idSistema = getenv('SISTEMA_ID');
+        $ssoBaseUrl = getenv('SSO_BASE_URL');
+        
+        return view('base/inicio', [
+            'idSistema' => $idSistema,
+            'ssoBaseUrl' => $ssoBaseUrl
+        ]);
     }
 }
