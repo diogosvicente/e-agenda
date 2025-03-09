@@ -29,7 +29,6 @@ class SSOController extends ResourceController
         curl_close($ch);
 
         $data = json_decode($response, true);
-        echo "<pre>"; dd(print_r($data));
 
         if (!isset($data['access_token'])) {
             return $this->fail('Erro ao obter token JWT.');
