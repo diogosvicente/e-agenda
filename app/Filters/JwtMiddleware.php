@@ -12,45 +12,65 @@ class JwtMiddleware implements FilterInterface
 {
     private $jwtSecret;
     private $idSistema;
+    private $ssoBaseUrl;
+    private $callbackUrl;
+    private $ssoLoginUrl;
 
     public function __construct()
     {
-        $this->jwtSecret = getenv('JWT_SECRET'); // Obtém a chave do .env
-        $this->idSistema = getenv('SISTEMA_ID'); // Obtém o ID do sistema do .env
+        // Lê a chave JWT e o ID do sistema do .env
+        $this->jwtSecret   = getenv('JWT_SECRET'); 
+        $this->idSistema   = getenv('SISTEMA_ID'); 
+
+        // Lê a URL base do SSO do .env
+        // Ex.: http://localhost/e-prefeitura
+        $this->ssoBaseUrl  = getenv('SSO_BASE_URL'); 
+
+        // Em vez de pegar do .env, usamos base_url() para montar a callback local
+        // Assim, se seu site estiver em http://localhost/e-agenda, base_url('callback') será http://localhost/e-agenda/callback
+        $this->callbackUrl = base_url('callback'); 
+
+        // Monta a URL final para redirecionar caso o token seja inválido/ausente
+        // http://localhost/e-prefeitura/sso/login?redirect=http://localhost/e-agenda/callback&sistema=4
+        $this->ssoLoginUrl = "{$this->ssoBaseUrl}/sso/login?redirect={$this->callbackUrl}&sistema={$this->idSistema}";
     }
 
     public function before(RequestInterface $request, $arguments = null)
     {
-        // Recupera o token JWT do cabeçalho
+        // Tenta obter "Authorization: Bearer <token>"
         $header = $request->getHeaderLine('Authorization');
 
+        // Se não existir token ou não estiver no formato "Bearer <TOKEN>", redireciona para SSO
         if (!$header || !preg_match('/Bearer\s(\S+)/', $header, $matches)) {
-            return service('response')->setJSON(['error' => 'Token ausente'])->setStatusCode(401);
+            return redirect()->to($this->ssoLoginUrl);
         }
 
         $token = $matches[1];
 
         try {
+            // Decodifica o token JWT
             $decoded = JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
 
-            // Verifica se o ID do sistema está configurado corretamente
+            // Verifica se o ID do sistema está configurado no .env
             if (!$this->idSistema) {
-                return service('response')->setJSON(['error' => 'Configuração de sistema ausente no .env.'])->setStatusCode(500);
+                return redirect()->to($this->ssoLoginUrl);
             }
 
-            // Verifica se o usuário tem permissão para este sistema
+            // Verifica se o token corresponde ao sistema atual
             if ($decoded->id_sistema != $this->idSistema) {
-                return service('response')->setJSON(['error' => 'Acesso negado. Sistema não autorizado.'])->setStatusCode(403);
+                return redirect()->to($this->ssoLoginUrl);
             }
 
-            return; // Token válido, prossegue
+            // Token válido → continua
+            return;
         } catch (\Exception $e) {
-            return service('response')->setJSON(['error' => 'Token inválido'])->setStatusCode(401);
+            // Token inválido ou expirado
+            return redirect()->to($this->ssoLoginUrl);
         }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // Nada a fazer
+        // Nada a fazer após a requisição
     }
 }

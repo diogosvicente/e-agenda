@@ -36,93 +36,100 @@
 	<!-- Estilo da página -->
 	<!-- Fim - Estilo da página -->
 
-	</head>
-	<body class="">
-		<!-- Header -->
-		 <header>
-			<div class="navbar">
-				<div class="container ">
-					<a href="<?php echo base_url(); ?>" class="navbar-brand marca">
-						<span class="logo-uerj">
-							<img src="<?php echo base_url('public/assets/images/logo_uerj_branca.png'); ?>" alt="">
-						</span>
-						<div class="titulo">
-							<p class="sigla">E-AGENDA</p>
-							<p class="nome">Prefeitura Digital</p>
-						</div>
-					</a>
-
-					<!-- Menu de itens para melhorar a acessibilidade (tamanho da fonte e contraste) -->
-					 <div id="menuAcessibilidade">
-						<span title="Restaurar fonte" data-bs-placement="bottom" data-bs-toggle="tooltip" class="font-reset">A</span>
-						<span class="visually-hidden">Restaurar fonte</span>
-						<span title="Diminuir fonte" data-bs-placement="bottom" data-bs-toggle="tooltip" class="font-minus">A-</span>
-						<span class="visually-hidden">Diminuir fonte</span>
-						<span title="Aumentar fonte" data-bs-placement="bottom" data-bs-toggle="tooltip" class="font-plus">A+</span>
-						<span class="visually-hidden">Aumentar fonte</span>
-						<span title="Alto contraste" data-bs-placement="bottom" data-bs-toggle="tooltip" class="contrast">
-							<i class="bi-circle-half"></i><span class="visually-hidden">Alto contraste</span>
-						</span>
+</head>
+<body class="">
+	<!-- Header -->
+	<header>
+		<div class="navbar">
+			<div class="container ">
+				<a href="<?php echo base_url(); ?>" class="navbar-brand marca">
+					<span class="logo-uerj">
+						<img src="<?php echo base_url('public/assets/images/logo_uerj_branca.png'); ?>" alt="">
+					</span>
+					<div class="titulo">
+						<p class="sigla">E-AGENDA</p>
+						<p class="nome">Prefeitura Digital</p>
 					</div>
-					<span id="btnAcessibilidade" title="Menu de acessibilidade">
-						<svg xmlns="http://www.w3.org/2000/svg" height="1.25rem" viewBox="0 0 24 24" width="1.25rem"
-					 fill="currentColor"><path
-							d="M0 0h24v24H0V0z" fill="none"/><path
-							d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/></svg>
-				<span class="visually-hidden">Menu de Acessibilidade</span>
+				</a>
 
-			</span>
-			<!-- FIM - Menu acessibilidade -->
-			
-			<!-- MENU OFFCANVAS -->
-				<button class="navbar-toggler" type="button" id="btnMenu" data-bs-toggle="offcanvas" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal"><i class="bi-list"></i></button>
+				<!-- Menu de itens para melhorar a acessibilidade (tamanho da fonte e contraste) -->
+				<div id="menuAcessibilidade">
+					<span title="Restaurar fonte" data-bs-placement="bottom" data-bs-toggle="tooltip" class="font-reset">A</span>
+					<span class="visually-hidden">Restaurar fonte</span>
+					<span title="Diminuir fonte" data-bs-placement="bottom" data-bs-toggle="tooltip" class="font-minus">A-</span>
+					<span class="visually-hidden">Diminuir fonte</span>
+					<span title="Aumentar fonte" data-bs-placement="bottom" data-bs-toggle="tooltip" class="font-plus">A+</span>
+					<span class="visually-hidden">Aumentar fonte</span>
+					<span title="Alto contraste" data-bs-placement="bottom" data-bs-toggle="tooltip" class="contrast">
+						<i class="bi-circle-half"></i><span class="visually-hidden">Alto contraste</span>
+					</span>
+				</div>
+				<span id="btnAcessibilidade" title="Menu de acessibilidade">
+					<svg xmlns="http://www.w3.org/2000/svg" height="1.25rem" viewBox="0 0 24 24" width="1.25rem" fill="currentColor">
+						<path d="M0 0h24v24H0V0z" fill="none"/>
+						<path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/>
+					</svg>
+					<span class="visually-hidden">Menu de Acessibilidade</span>
+				</span>
+				<!-- FIM - Menu acessibilidade -->
+
+				<!-- MENU OFFCANVAS -->
+				<button 
+					class="navbar-toggler"
+					type="button"
+					id="btnMenu"
+					data-bs-toggle="offcanvas"
+					data-bs-target="#menuPrincipal"
+					aria-controls="menuPrincipal">
+					<i class="bi-list"></i>
+				</button>
 				<div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="menuPrincipal">
 					<div class="offcanvas-header">
 						<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 						<h5 class="offcanvas-title" id="menuLateralLabel">Menu</h5>
 					</div>
-				<div class="offcanvas-body text-end">
-					<nav class="">
-						<ul class="">
-							<li class=""><a href="<?php echo base_url(); ?>" class="">Página inicial</a></li>
-							<li><a href="<?= base_url('login'); ?>">Entrar</a></li>
-							<li class=""><a href="<?php echo base_url('sobre'); ?>" class="">Sobre o sistema</a></li>
-						</ul>
-					</nav>
-				</div>
-			</div>
-			<!-- FIM - MENU OFFCANVAS -->
+					<div class="offcanvas-body text-end">
+						<nav>
+							<ul>
+								<li><a href="<?= base_url(); ?>">Página inicial</a></li>
 
+								<li id="login-link" style="display: none;">
+									<a href="<?= esc($ssoBaseUrl) ?>/sso/login?redirect=<?= base_url('callback'); ?>&sistema=<?= esc($idSistema) ?>">Entrar</a>
+								</li>
+
+								<li id="logout-link" style="display: none;">
+									<a href="#" onclick="logout()">Sair</a>
+								</li>
+
+								<li><a href="<?= base_url('sobre'); ?>">Sobre o sistema</a></li>
+							</ul>
+
+						</nav>
+					</div>
+
+				</div>
+				<!-- FIM - MENU OFFCANVAS -->
 			</div>
 		</div>
 	</header>
 
+	<!-- Antes: if (session()->get('isLoggedIn')) ... -->
+	<!-- Agora: bloco fixo, exibido ou ocultado via JS -->
 
-	<div class="container mt-0 is-logged">
+	<div id="jwt-auth-container" class="container mt-0 is-logged" style="display:none;">
 		<div class="row">
 			<div class="col-12 text-end">
 				<span class="small float-end fst-italic">
-					<!-- Exibe o nome do usuário -->
-					<span class="usuario-informacoes">
-						NOME_DO_USUARIO_AUTENTICADO_AQUI
-						<a href="#" class="bi-info-circle-fill"
-						data-bs-trigger="click"
-						data-bs-toggle="popover"
-						data-bs-placement="bottom"
-						data-bs-content="popover"
-						title="">
-						</a>
-					</span>
-					<a href="<?= base_url('logout'); ?>">
-						<i class="bi-box-arrow-right"></i> Sair
-					</a>
+					<!-- Nome do usuário + ícone + tooltip CPF -->
+					<span id="usuario-nome" class="usuario-informacoes"></span>
 				</span>
 			</div>
-			<div id="usuario-detalhes" style="display: none;" class="col-12 text-end">
-				e-Agenda: CPF_DO_USUARIO_AUTENTICADO_AQUI
-			</div>
+			<!-- Exibe CPF em outro lugar (opcional) -->
+			<div id="usuario-detalhes" style="display:none;" class="col-12 text-end"></div>
 		</div>
 	</div>
+
+    
 
 	<div class="container caminho-migalhas">
 		<!--
@@ -207,6 +214,8 @@
 	<script src="<?php echo base_url('public/assets/js/functions.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo base_url('public/assets/js/functions_layout.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo base_url('public/assets/js/layout.js'); ?>" type="text/javascript"></script>
+	<!-- JS Auth JWT -->
+	<script src="<?= base_url('public/assets/js/sso/auth.js'); ?>"></script>
 	<!-- FIM - Javascripts comuns a todas as páginas -->
 
 	<!-- Javascript da página -->
@@ -236,67 +245,3 @@
 
 	</body>
 </html>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        checkAuthStatus();
-    });
-
-    function checkAuthStatus() {
-        const token = localStorage.getItem("jwt_token");
-
-        if (!token) {
-            document.getElementById("auth-section").innerHTML = "<p>Você não está logado.</p>";
-            document.getElementById("login-button").style.display = "inline-block";
-            document.getElementById("logout-button").style.display = "none";
-        } else {
-            const userData = parseJwt(token);
-            if (!userData) {
-                logout();
-                return;
-            }
-
-            document.getElementById("auth-section").innerHTML = `
-                <p>Bem-vindo, <strong>${userData.nome}</strong>!</p>
-                <p>Nível de Acesso: <strong>${userData.nivel}</strong></p>
-            `;
-            document.getElementById("login-button").style.display = "none";
-            document.getElementById("logout-button").style.display = "inline-block";
-        }
-    }
-
-    function parseJwt(token) {
-        try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(atob(base64));
-        } catch (e) {
-            console.error("Token inválido", e);
-            return null;
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem("jwt_token");
-        window.location.reload(); // Recarrega a página para refletir o logout
-    }
-
-    // ✅ Adiciona automaticamente o token em todas as requisições AJAX/FETCH
-    function getHeaders() {
-        const token = localStorage.getItem("jwt_token");
-        return token ? { "Authorization": "Bearer " + token } : {};
-    }
-
-    async function fetchProtectedData(url, options = {}) {
-        options.headers = {
-            ...options.headers,
-            ...getHeaders()
-        };
-
-        const response = await fetch(url, options);
-        if (response.status === 401) {
-            logout(); // Se o token for inválido, faz logout automático
-        }
-        return response.json();
-    }
-</script>
