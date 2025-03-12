@@ -2,10 +2,14 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
+use CodeIgniter\Controller;
 
-class LoginController extends BaseController
+class LoginController extends Controller
 {
+
+    protected $idSistema;
+    protected $ssoBaseUrl;
+
     public function __construct()
 	{
         helper(['email_helper', 'cpf_helper']);
@@ -15,14 +19,28 @@ class LoginController extends BaseController
 
     public function index()
     {
-        return view('login/login', [
+        return view('sso/login', [
             'idSistema' => $this->idSistema,
             'ssoBaseUrl' => $this->ssoBaseUrl
         ]);
     }
-    
     public function logout()
     {
-        return redirect()->to(base_url());
+        $response = service('response');
+
+        // Remover o cookie JWT definindo um valor vazio e uma data de expiração no passado
+        $response->setCookie(
+            'jwt_token', '', time() - 3600, // Define um timestamp no passado para expirar imediatamente
+            [
+                'httponly' => true,           // Protege contra XSS
+                'secure'   => getenv('CI_ENVIRONMENT') !== 'development', // Apenas HTTPS em produção
+                'samesite' => 'Strict',
+                'path'     => '/'
+            ]
+        );
+
+        return $response->setJSON([
+            'message' => 'Logout realizado com sucesso.'
+        ]);
     }
 }

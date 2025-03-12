@@ -6,19 +6,23 @@ use App\Controllers\BaseController;
 
 class HomeController extends BaseController
 {
+    protected $idSistema;
+    protected $ssoBaseUrl;
+    protected $userInfo;
+
     public function __construct()
 	{
-		helper('cpf_helper');
+        $this->idSistema = getenv('SISTEMA_ID');
+        $this->ssoBaseUrl = getenv('SSO_BASE_URL');
+        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
 	}
 
     public function index()
     {
-        $idSistema = getenv('SISTEMA_ID');
-        $ssoBaseUrl = getenv('SSO_BASE_URL');
-        
         return view('base/inicio', [
-            'idSistema' => $idSistema,
-            'ssoBaseUrl' => $ssoBaseUrl
+            'idSistema'     => $this->idSistema,
+            'ssoBaseUrl'    => $this->ssoBaseUrl,
+            'userInfo'      => $this->userInfo
         ]);
     }
 }

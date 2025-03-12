@@ -8,6 +8,11 @@
 	<meta name="description" content="E-AGENDA">
 	<meta name="author" content="Prefeitura dos CAMPI (PREFEI)">
 	<meta name="Access-Control-Allow-Origin" content="*">
+	<meta name="base-url" content="<?= base_url(); ?>">
+	<meta name="sso-base-url" content="<?= $ssoBaseUrl; ?>">
+	<meta name="id-sistema" content="<?= $idSistema; ?>">
+	<meta name="jwt-token" content="<?= isset($_COOKIE['jwt_token']) ? $_COOKIE['jwt_token'] : ''; ?>">
+
 	<title>E-AGENDA</title>
 
 	<!-- Estilos -->
@@ -92,44 +97,49 @@
 						<nav>
 							<ul>
 								<li><a href="<?= base_url(); ?>">Página inicial</a></li>
-
-								<li id="login-link" style="display: none;">
-									<a href="<?= esc($ssoBaseUrl) ?>/sso/login?redirect=<?= base_url('callback'); ?>&sistema=<?= esc($idSistema) ?>">Entrar</a>
-								</li>
-
-								<li id="logout-link" style="display: none;">
-									<a href="#" onclick="logout()">Sair</a>
-								</li>
-
+								<?php if (!isset($_COOKIE['jwt_token'])) : ?>
+									<li><a href="<?= base_url('login'); ?>">Entrar</a></li>
+								<?php else : ?>
+									<li><a href="#" onclick="logout()">Sair</a></li>
+								<?php endif; ?>
 								<li><a href="<?= base_url('sobre'); ?>">Sobre o sistema</a></li>
 							</ul>
-
 						</nav>
 					</div>
-
 				</div>
 				<!-- FIM - MENU OFFCANVAS -->
 			</div>
 		</div>
 	</header>
 
-	<!-- Antes: if (session()->get('isLoggedIn')) ... -->
-	<!-- Agora: bloco fixo, exibido ou ocultado via JS -->
-
-	<div id="jwt-auth-container" class="container mt-0 is-logged" style="display:none;">
-		<div class="row">
-			<div class="col-12 text-end">
-				<span class="small float-end fst-italic">
-					<!-- Nome do usuário + ícone + tooltip CPF -->
-					<span id="usuario-nome" class="usuario-informacoes"></span>
-				</span>
+	<?php if ($userInfo): ?>
+		<div class="container mt-0 is-logged">
+			<div class="row">
+				<div class="col-12 text-end">
+					<span class="small float-end fst-italic">
+						<!-- Exibe o nome do usuário -->
+						<span class="usuario-informacoes">
+							<?= esc($userInfo['nome']) ?>
+							<a href="#" class="bi-info-circle-fill"
+							data-bs-trigger="click"
+							data-bs-toggle="popover"
+							data-bs-placement="bottom"
+							data-bs-content="Informações do usuário"
+							title="Usuário Logado">
+							</a>
+						</span>
+						<a href="#" onclick="logout()">
+							<i class="bi-box-arrow-right"></i> Sair
+						</a>
+					</span>
+				</div>
+				<div id="usuario-detalhes" style="display: none;" class="col-12 text-end">
+					e-Prefeitura: <?= esc(maskCPF($userInfo['cpf'])) ?>
+				</div>
 			</div>
-			<!-- Exibe CPF em outro lugar (opcional) -->
-			<div id="usuario-detalhes" style="display:none;" class="col-12 text-end"></div>
 		</div>
-	</div>
+	<?php endif; ?>
 
-    
 
 	<div class="container caminho-migalhas">
 		<!--
