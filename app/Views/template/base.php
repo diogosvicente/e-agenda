@@ -100,6 +100,7 @@
 								<?php if (!isset($_COOKIE['jwt_token'])) : ?>
 									<li><a href="<?= base_url('login'); ?>">Entrar</a></li>
 								<?php else : ?>
+									<li><a href="<?= base_url('calendario'); ?>">Calendário</a></li>
 									<li><a href="#" onclick="logout()">Sair</a></li>
 								<?php endif; ?>
 								<li><a href="<?= base_url('sobre'); ?>">Sobre o sistema</a></li>
@@ -112,7 +113,7 @@
 		</div>
 	</header>
 
-	<?php if ($userInfo): ?>
+	<?php if (isset($userInfo) && $userInfo): ?>
 		<div class="container mt-0 is-logged">
 			<div class="row">
 				<div class="col-12 text-end">
