@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 14/03/2025 às 03:39
+-- Tempo de geração: 14/03/2025 às 21:56
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -38,7 +38,7 @@ CREATE TABLE `campus` (
 --
 
 INSERT INTO `campus` (`id`, `nome`, `sigla`) VALUES
-(1, 'Maracanã/Francisco Negrão de Lima', 'FNL');
+(1, 'Maracanã/Francisco Negrão de Lima', 'Maracanã');
 
 -- --------------------------------------------------------
 
@@ -58,8 +58,7 @@ CREATE TABLE `espacos` (
 --
 
 INSERT INTO `espacos` (`id`, `id_predio`, `nome`, `capacidade`) VALUES
-(1, 1, 'Auditório 11', 100),
-(2, 2, 'Capela', 50);
+(1, 1, 'Auditório 11', 100);
 
 -- --------------------------------------------------------
 
@@ -94,6 +93,13 @@ CREATE TABLE `evento` (
   `observacoes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `evento`
+--
+
+INSERT INTO `evento` (`id`, `id_solicitante`, `nome_solicitante`, `id_responsavel`, `telefone_responsavel`, `email_responsavel`, `nome`, `quantidade_participantes`, `assinado_solicitante`, `assinado_componente_org`, `observacoes`) VALUES
+(1, 46, 'Diogo', 46, '21987105175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 42, 0, 0, 'Campo destinado às observações');
+
 -- --------------------------------------------------------
 
 --
@@ -107,6 +113,14 @@ CREATE TABLE `evento_espaco_data_hora` (
   `data_hora_inicio` datetime NOT NULL,
   `data_hora_fim` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `evento_espaco_data_hora`
+--
+
+INSERT INTO `evento_espaco_data_hora` (`id`, `id_evento`, `id_espaco`, `data_hora_inicio`, `data_hora_fim`) VALUES
+(1, 1, 1, '2025-03-14 10:00:00', '2025-03-14 17:00:00'),
+(2, 1, 1, '2025-03-16 10:00:00', '2025-03-17 19:27:26');
 
 -- --------------------------------------------------------
 
@@ -151,7 +165,7 @@ CREATE TABLE `predio` (
 
 INSERT INTO `predio` (`id`, `id_campus`, `nome`, `sigla`) VALUES
 (1, 1, 'Pavilhão João Lyra Filho', 'PJLF'),
-(2, 1, 'Campus', 'C');
+(2, 1, 'Capela Ecumênica', 'Capela');
 
 -- --------------------------------------------------------
 
@@ -248,7 +262,7 @@ ALTER TABLE `campus`
 -- AUTO_INCREMENT de tabela `espacos`
 --
 ALTER TABLE `espacos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `espaco_fotos`
@@ -260,13 +274,13 @@ ALTER TABLE `espaco_fotos`
 -- AUTO_INCREMENT de tabela `evento`
 --
 ALTER TABLE `evento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `evento_recursos`
