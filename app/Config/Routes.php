@@ -13,4 +13,5 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
      $routes->get('/', 'HomeController::index');
      $routes->get('logout', 'LoginController::logout');
      $routes->get('calendario', 'CalendarController::index');
+     $routes->get('fullcalendar/data', 'FullCalendarController::getCalendarData');
 });
