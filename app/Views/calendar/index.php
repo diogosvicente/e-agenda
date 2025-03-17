@@ -31,7 +31,7 @@
             selectable: true,
             nowIndicator: true,
             aspectRatio: 1.8,
-            scrollTime: '00:00',
+            scrollTime: '08:00',
             headerToolbar: {
               left: 'today prev,next',
               center: 'title',
@@ -70,6 +70,7 @@
             resourceGroupField: 'building',
             resources: data.resources,
             events: data.events,
+            resourceOrder: false,
 
             // Evento de clique no evento
             eventClick: function(info) {

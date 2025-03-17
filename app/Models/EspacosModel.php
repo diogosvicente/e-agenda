@@ -13,6 +13,13 @@ class EspacosModel extends Model
 
     public function getEspacosByPredio($id_predio)
     {
-        return $this->where('id_predio', $id_predio)->findAll();
+        $espacos = $this->where('id_predio', $id_predio)->findAll();
+
+        // Ordena os espaços numericamente pelo nome
+        usort($espacos, function ($a, $b) {
+            return intval(preg_replace('/\D/', '', $a->nome)) <=> intval(preg_replace('/\D/', '', $b->nome));
+        });
+
+        return $espacos;
     }
 }

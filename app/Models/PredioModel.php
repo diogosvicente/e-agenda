@@ -14,7 +14,7 @@ class PredioModel extends Model
     public function getPrediosWithEspacos($id_campus)
     {
         $espacosModel = new EspacosModel();
-        $predios = $this->where('id_campus', $id_campus)->findAll();
+        $predios = $this->where('id_campus', $id_campus)->orderBy('id', 'ASC')->findAll();
 
         foreach ($predios as $predio) {
             $predio->espacos = $espacosModel->getEspacosByPredio($predio->id);
