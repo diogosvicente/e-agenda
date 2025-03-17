@@ -17,6 +17,19 @@ class FullCalendarController extends ResourceController
         $this->eventoModel = new EventoModel();
     }
 
+    public function index()
+    {
+        $this->idSistema = getenv('SISTEMA_ID');
+        $this->ssoBaseUrl = getenv('SSO_BASE_URL');
+        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
+
+        return view('calendar/index', [
+            'idSistema'     => $this->idSistema,
+            'ssoBaseUrl'    => $this->ssoBaseUrl,
+            'userInfo'      => $this->userInfo
+        ]);
+    }
+
     public function getCalendarData()
     {
         $campi = $this->campusModel->getCampiWithPrediosAndEspacos();

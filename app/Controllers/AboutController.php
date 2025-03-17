@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class SobreController extends BaseController
+class AboutController extends BaseController
 {
 
     protected $idSistema;

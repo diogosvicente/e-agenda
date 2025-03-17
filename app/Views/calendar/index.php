@@ -10,7 +10,7 @@
     let calendarEl = document.getElementById('calendar');
     let today = new Date().toISOString().split('T')[0];
 
-    $.getJSON("<?php echo base_url('fullcalendar/data'); ?>", function (data) {
+    $.getJSON("<?php echo base_url('calendario/data'); ?>", function (data) {
       
       // 🔹 Criar um mapa de espaços para buscas rápidas
       let espacosMap = {};
