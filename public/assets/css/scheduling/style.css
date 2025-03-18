@@ -1,0 +1,19 @@
+/* Estilização do fieldset */
+.fieldset-child {
+    border: 1px solid black !important;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: none; /* Remover sombra caso esteja causando o efeito */
+}
+
+/* Estilização correta do legend */
+.fieldset-child legend {
+    font-size: 14px !important; /* Define tamanho menor */
+    font-weight: bold !important; /* Mantém o negrito */
+    padding: 0 5px !important; /* Pequeno padding para evitar espaço extra */
+    margin-left: 10px !important; /* Ajuste para alinhar melhor */
+    border: none !important; /* Garante que não fique com uma borda extra */
+    background: none !important; /* Remove qualquer fundo adicionado */
+    display: inline !important; /* Evita que o legend seja tratado como bloco */
+}
