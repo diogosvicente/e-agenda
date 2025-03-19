@@ -13,6 +13,9 @@
 	<div class="col-md-12 mt-2">
 		<form action="<?php echo base_url('legado/legadoValidade'); ?>" id="formLegado" name="formLegado" enctype="multipart/form-data" role="form" class="form-legado" method="post" accept-charset="utf-8">
 
+        <?= csrf_field() ?>
+        <input type="hidden" name="baseUrl" value="<?php echo base_url(); ?>" id="baseUrl" />
+
 			<ul class="nav nav-tabs">
 				<li class="nav-item"><a class="nav-link active" id="evento-tab" data-toggle="tab" href="#evento">Nome do Evento</a></li>
 				<li class="nav-item"><a class="nav-link" id="solicitante-tab" data-toggle="tab" href="#solicitante">Solicitante e Responsável</a></li>
@@ -28,7 +31,7 @@
                     * ID_EVENTO SE FOR EDIÇÃO
                     * -------------------------------------------------------------------
                     -->
-                    <input type="hidden" name="id_pessoa" id="id_pessoa" autocomplete="off" value="<?php echo (isset($registro->id_pessoa)) ? $registro->id_pessoa : '' ?>" />
+                    <input type="hidden" name="id_evento" id="id_evento" autocomplete="off" value="<?php echo (isset($registro->id_evento)) ? $registro->id_evento : '' ?>" />
 
                     <!--
                     * -------------------------------------------------------------------
@@ -40,10 +43,10 @@
                     <div class="tab-pane fade show active" id="evento">
                         <div class="row mb-3">
                             <div class="col-sm-12">
-                                <label for="responsavel" class="form-label">Nome da Atividade / Evento: *</label>
-                                <input type="text" name="responsavel" id="responsavel" label="Responsavel:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->responsavel)) ? $registro->responsavel : '' ?>" />
-                                <div id="divError-responsavel" class="invalid-feedback"></div>
-                                <div id="divNotice-responsavel" class="notice-feedback"></div>
+                                <label for="titulo_evento" class="form-label">Nome da Atividade / Evento: *</label>
+                                <input type="text" name="titulo_evento" id="titulo_evento" label="titulo_evento:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->titulo_evento)) ? $registro->titulo_evento : '' ?>" />
+                                <div id="divError-titulo_evento" class="invalid-feedback"></div>
+                                <div id="divNotice-titulo_evento" class="notice-feedback"></div>
                             </div>
                         </div>
                     </div>
@@ -79,11 +82,11 @@
                                     <div id="divNotice-solicitante" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-6">
-                                    <label for="unidade" class="form-label">Unidade: *</label>
-                                    <input type="text" name="unidade" id="unidade" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->unidade)) ? $registro->unidade : '' ?>" />
-                                    <div id="divError-unidade" class="invalid-feedback"></div>
-                                    <div id="divNotice-unidade" class="notice-feedback"></div>
+                                    <label for="solicitante_unidade" class="form-label">Unidade: *</label>
+                                    <input type="text" name="solicitante_unidade" id="solicitante_unidade" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->solicitante_unidade)) ? $registro->solicitante_unidade : '' ?>" />
+                                    <div id="divError-solicitante_unidade" class="invalid-feedback"></div>
+                                    <div id="divNotice-solicitante_unidade" class="notice-feedback"></div>
                                 </div>
                             </div>
                         </fieldset>
@@ -103,41 +106,41 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <label for="solicitante" class="form-label">Nome: *</label>
-                                    <input type="text" name="solicitante" id="solicitante" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->solicitante)) ? $registro->solicitante : '' ?>" />
-                                    <div id="divError-solicitante" class="invalid-feedback"></div>
-                                    <div id="divNotice-solicitante" class="notice-feedback"></div>
+                                    <label for="responsavel_nome" class="form-label">Nome: *</label>
+                                    <input type="text" name="responsavel_nome" id="responsavel_nome" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->responsavel_nome)) ? $registro->responsavel_nome : '' ?>" />
+                                    <div id="divError-responsavel_nome" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_nome" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-6">
-                                    <label for="unidade" class="form-label">Unidade: *</label>
-                                    <input type="text" name="unidade" id="unidade" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->unidade)) ? $registro->unidade : '' ?>" />
-                                    <div id="divError-unidade" class="invalid-feedback"></div>
-                                    <div id="divNotice-unidade" class="notice-feedback"></div>
+                                    <label for="responsavel_unidade" class="form-label">Unidade: *</label>
+                                    <input type="text" name="responsavel_unidade" id="responsavel_unidade" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->responsavel_unidade)) ? $registro->responsavel_unidade : '' ?>" />
+                                    <div id="divError-responsavel_unidade" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_unidade" class="notice-feedback"></div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <label for="email" class="form-label">E-mail: *</label>
-                                    <input type="text" name="email" id="email" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->email)) ? $registro->email : '' ?>" />
-                                    <div id="divError-email" class="invalid-feedback"></div>
-                                    <div id="divNotice-email" class="notice-feedback"></div>
+                                    <label for="responsavel_email" class="form-label">E-mail: *</label>
+                                    <input type="text" name="responsavel_email" id="responsavel_email" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->responsavel_email)) ? $registro->responsavel_email : '' ?>" />
+                                    <div id="divError-responsavel_email" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_email" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="telefone" class="form-label">Telefone 1: *</label>
-                                    <input type="text" name="telefone" id="telefone" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->telefone)) ? $registro->telefone : '' ?>" />
-                                    <div id="divError-telefone" class="invalid-feedback"></div>
-                                    <div id="divNotice-telefone" class="notice-feedback"></div>
+                                    <label for="responsavel_telefone1" class="form-label">Telefone 1: *</label>
+                                    <input type="text" name="responsavel_telefone1" id="responsavel_telefone1" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->responsavel_telefone1)) ? $registro->responsavel_telefone1 : '' ?>" />
+                                    <div id="divError-responsavel_telefone1" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_telefone1" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="telefone" class="form-label">Telefone 2: *</label>
-                                    <input type="text" name="telefone" id="telefone" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->telefone)) ? $registro->telefone : '' ?>" />
-                                    <div id="divError-telefone" class="invalid-feedback"></div>
-                                    <div id="divNotice-telefone" class="notice-feedback"></div>
+                                    <label for="responsavel_telefone2" class="form-label">Telefone 2: </label>
+                                    <input type="text" name="responsavel_telefone2" id="responsavel_telefone2" class="form-control" autocomplete="off" 
+                                        value="<?php echo (isset($registro->responsavel_telefone2)) ? $registro->responsavel_telefone2 : '' ?>" />
+                                    <div id="divError-responsavel_telefone2" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_telefone2" class="notice-feedback"></div>
                                 </div>
                             </div>
                         </fieldset>
@@ -167,15 +170,21 @@
                                             <select name="espaco[]" class="form-control espaco-select" required>
                                                 <option value="">Selecione um espaço</option>
                                                 <?php foreach ($campus as $campusItem): ?>
-                                                    <optgroup label="<?php echo $campusItem->nome; ?>">
+                                                    <optgroup label="<?php echo esc($campusItem->nome); ?>">
                                                         <?php foreach ($campusItem->predios as $predio): ?>
-                                                            <optgroup label="➝ <?php echo $predio->nome; ?>">
-                                                                <?php foreach ($predio->espacos as $espaco): ?>
-                                                                    <option value="<?php echo $espaco->id; ?>">
-                                                                        <?php echo $espaco->nome . " (Capacidade: " . $espaco->capacidade . ")"; ?>
-                                                                    </option>
-                                                                <?php endforeach; ?>
-                                                            </optgroup>
+                                                            <?php if (!empty($predio->espacos)): ?>
+                                                                <optgroup label="➝ <?php echo esc($predio->nome); ?>">
+                                                                    <?php foreach ($predio->espacos as $espaco): ?>
+                                                                        <option value="<?php echo esc($espaco->id); ?>">
+                                                                            <?php echo esc($espaco->nome) . " (Capacidade: " . esc($espaco->capacidade) . ")"; ?>
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                </optgroup>
+                                                            <?php else: ?>
+                                                                <option value="P-<?php echo esc($predio->id); ?>">
+                                                                    <?php echo esc($predio->nome); ?>
+                                                                </option>
+                                                            <?php endif; ?>
                                                         <?php endforeach; ?>
                                                     </optgroup>
                                                 <?php endforeach; ?>
@@ -224,18 +233,52 @@
                     * -------------------------------------------------------------------
                     * INÍCIO DA TAB 4: RECURSOS
                     *
-                    * SOLICITANTE
                     * -------------------------------------------------------------------
                     -->
+                    <!-- INÍCIO DA TAB 4: RECURSOS -->
                     <div class="tab-pane fade" id="recursos">
-                        <!-- Recursos futuros -->
+                        <h4 class="mt-3">Selecione os Recursos Necessários</h4>
+
+                        <!-- Mensagem de aviso -->
+                        <div id="mensagem-recursos" class="alert alert-info">
+                            Selecione um espaço ou prédio primeiro para visualizar os recursos disponíveis.
+                        </div>
+
+                        <div id="recursos-lista" style="display: none;">
+                            <fieldset class="fieldset-child">
+                                <legend class="fieldset-child">Recursos Disponíveis</legend>
+                                <div id="recursos-gerais"></div>
+                            </fieldset>
+                        </div>
                     </div>
+
                 </div>
-            </fieldset>
+            </fieldset> <!-- fim do fieldset do tabbar -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-check">
+                        <input type="checkbox" checked name="flg_confirmacao_envio" value="S" id="flg_confirmacao_envio" class="form-check-input" data-required="*" required />
+                        <label for="flg_confirmacao_envio" class="form-check-label">
+                            <b>Texto de Confirmação aqui</b><br>
+                                Exiba aqui um texto para o usuário sobre a confirmação dos dados acima!
+                        </label>
+                    </div>
+                    <div id="divError-flg_confirmacao_envio" class="invalid-feedback"></div>
+                    <div id="divNotice-flg_confirmacao_envio" class="notice-feedback"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 d-flex flex-row justify-content-end py-2 py-sm-0">
+                    <button name="btnLimpar" type="button" id="btnLimpar" value="true" class="btn btn-warning">Limpar</button>
+                    <button name="btnCancel" type="button" id="btnCancel" value="true" class="btn btn-danger">Cancelar</button>
+                    <button name="btnValidateEvento" type="button" id="btnValidateEvento" value="true" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
 		</form>
 	</div>
 </section>
 
 <script src="<?php echo base_url('public/assets/js/scheduling/add.js'); ?>"></script>
+<script src="<?php echo base_url('public/assets/js/scheduling/validate.js'); ?>"></script>
 
 <?php $this->endSection('content'); ?>
