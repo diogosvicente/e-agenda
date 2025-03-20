@@ -11,7 +11,7 @@
 	<?php endif; ?>
 
 	<div class="col-md-12 mt-2">
-		<form action="<?php echo base_url('legado/legadoValidade'); ?>" id="formLegado" name="formLegado" enctype="multipart/form-data" role="form" class="form-legado" method="post" accept-charset="utf-8">
+		<form action="<?php echo base_url('scheduling/validate'); ?>" id="formScheduling" name="formScheduling" enctype="multipart/form-data" role="form" class="form-scheduling" method="post" accept-charset="utf-8">
 
         <?= csrf_field() ?>
         <input type="hidden" name="baseUrl" value="<?php echo base_url(); ?>" id="baseUrl" />
@@ -75,11 +75,11 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <label for="solicitante" class="form-label">Nome: *</label>
-                                    <input type="text" name="solicitante" id="solicitante" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->solicitante)) ? $registro->solicitante : '' ?>" />
-                                    <div id="divError-solicitante" class="invalid-feedback"></div>
-                                    <div id="divNotice-solicitante" class="notice-feedback"></div>
+                                    <label for="solicitante_nome" class="form-label">Nome: *</label>
+                                    <input type="text" name="solicitante_nome" id="solicitante_nome" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->solicitante_nome)) ? $registro->solicitante_nome : '' ?>" />
+                                    <div id="divError-solicitante_nome" class="invalid-feedback"></div>
+                                    <div id="divNotice-solicitante_nome" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="solicitante_unidade" class="form-label">Unidade: *</label>
@@ -154,20 +154,15 @@
                     * -------------------------------------------------------------------
                     -->
                     <div class="tab-pane fade" id="espacos">
-                        <!-- Espaços serão adicionados dinamicamente -->
                         <fieldset class="fieldset-child" id="espacos-container">
                             <legend class="fieldset-child">Espaços</legend>
-
-                            <!-- Primeiro espaço fixo -->
                             <div class="espaco-entry" data-espaco="1">
                                 <fieldset class="fieldset-child">
                                     <legend class="fieldset-child">Espaço 1</legend>
-
-                                    <!-- Seleção de Espaço -->
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <label for="espaco_1" class="form-label">Espaço Disponível: *</label>
-                                            <select name="espaco[]" class="form-control espaco-select" required>
+                                            <select name="espaco[]" id="espaco_1" class="form-control espaco-select" required>
                                                 <option value="">Selecione um espaço</option>
                                                 <?php foreach ($campus as $campusItem): ?>
                                                     <optgroup label="<?php echo esc($campusItem->nome); ?>">
@@ -189,28 +184,32 @@
                                                     </optgroup>
                                                 <?php endforeach; ?>
                                             </select>
+                                            <div id="divError-espaco_1" class="invalid-feedback"></div>
+                                            <div id="divNotice-espaco_1" class="notice-feedback"></div>
                                         </div>
                                     </div>
-
-                                    <!-- Seleção de Datas e Horários -->
                                     <div class="datas_horarios">
                                         <div class="row mt-3 data-hora-entry">
                                             <div class="col-sm-4">
-                                                <label for="data_inicio[]" class="form-label">Data Início:</label>
-                                                <input type="date" name="data_inicio[]" class="form-control" required>
+                                                <label for="data_inicio_1" class="form-label">Data Início: *</label>
+                                                <input type="date" name="data_inicio[]" id="data_inicio_1" class="form-control" required>
+                                                <div id="divError-data_inicio_1" class="invalid-feedback"></div>
+                                                <div id="divNotice-data_inicio_1" class="notice-feedback"></div>
                                             </div>
                                             <div class="col-sm-4">
-                                                <label for="hora_inicio[]" class="form-label">Hora de Início:</label>
-                                                <input type="time" name="hora_inicio[]" class="form-control" required>
+                                                <label for="hora_inicio_1" class="form-label">Hora de Início: *</label>
+                                                <input type="time" name="hora_inicio[]" id="hora_inicio_1" class="form-control" required>
+                                                <div id="divError-hora_inicio_1" class="invalid-feedback"></div>
+                                                <div id="divNotice-hora_inicio_1" class="notice-feedback"></div>
                                             </div>
                                             <div class="col-sm-3">
-                                                <label for="hora_fim[]" class="form-label">Hora de Fim:</label>
-                                                <input type="time" name="hora_fim[]" class="form-control" required>
+                                                <label for="hora_fim_1" class="form-label">Hora de Fim: *</label>
+                                                <input type="time" name="hora_fim[]" id="hora_fim_1" class="form-control" required>
+                                                <div id="divError-hora_fim_1" class="invalid-feedback"></div>
+                                                <div id="divNotice-hora_fim_1" class="notice-feedback"></div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Botões para adicionar/remover -->
                                     <div class="row mt-3">
                                         <div class="col-sm-6">
                                             <button type="button" class="btn btn-success addDataHora">+ Adicionar Data/Hora</button>
@@ -218,16 +217,14 @@
                                     </div>
                                 </fieldset>
                             </div>
-
-                            <!-- Botão para adicionar novo espaço -->
                             <div class="row mt-3">
                                 <div class="col-sm-12 text-end">
                                     <button type="button" class="btn btn-primary" id="addEspaco">+ Adicionar Novo Espaço</button>
                                 </div>
                             </div>
                         </fieldset>
-                         
                     </div>
+
 
                     <!--
                     * -------------------------------------------------------------------

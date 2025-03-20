@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 14/03/2025 às 21:56
+-- Tempo de geração: 19/03/2025 às 18:57
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -58,7 +58,15 @@ CREATE TABLE `espacos` (
 --
 
 INSERT INTO `espacos` (`id`, `id_predio`, `nome`, `capacidade`) VALUES
-(1, 1, 'Auditório 11', 100);
+(1, 1, 'Auditório 11', 100),
+(4, 1, 'Auditório 31', 100),
+(5, 1, 'Auditório 33', 100),
+(6, 1, 'Auditório 51', 100),
+(7, 1, 'Auditório 71', 100),
+(8, 1, 'Auditório 91', 100),
+(9, 1, 'Auditório 93', 100),
+(10, 1, 'Auditório 111', 100),
+(11, 1, 'Auditório 113', 100);
 
 -- --------------------------------------------------------
 
@@ -165,7 +173,9 @@ CREATE TABLE `predio` (
 
 INSERT INTO `predio` (`id`, `id_campus`, `nome`, `sigla`) VALUES
 (1, 1, 'Pavilhão João Lyra Filho', 'PJLF'),
-(2, 1, 'Capela Ecumênica', 'Capela');
+(2, 1, 'Capela Ecumênica', 'Capela'),
+(3, 1, 'Bosque', 'Bosque'),
+(4, 1, 'Espinha da Baleia', 'Baleia');
 
 -- --------------------------------------------------------
 
@@ -175,12 +185,26 @@ INSERT INTO `predio` (`id`, `id_campus`, `nome`, `sigla`) VALUES
 
 CREATE TABLE `recursos` (
   `id` int(11) NOT NULL,
-  `id_espaco` int(11) NOT NULL,
+  `id_espaco` int(11) DEFAULT NULL,
+  `id_predio` int(11) DEFAULT NULL,
   `nome` varchar(255) NOT NULL,
   `quantidade` int(11) NOT NULL,
   `tipo` enum('Audiovisual','Mobiliário') NOT NULL,
   `status` enum('disponivel','em manutencao','indisponivel') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `recursos`
+--
+
+INSERT INTO `recursos` (`id`, `id_espaco`, `id_predio`, `nome`, `quantidade`, `tipo`, `status`) VALUES
+(1, 1, NULL, 'Projetor', 2, 'Audiovisual', 'disponivel'),
+(4, 4, NULL, 'Notebook', 4, 'Audiovisual', 'disponivel'),
+(5, NULL, 2, 'Poltrona', 2, 'Mobiliário', 'disponivel'),
+(6, NULL, NULL, 'Microfone', 12, 'Audiovisual', 'disponivel'),
+(7, NULL, 3, 'Refletor', 1, 'Audiovisual', 'disponivel'),
+(8, NULL, 2, 'Pedestal', 1, 'Audiovisual', ''),
+(9, NULL, NULL, 'Filmagem', 1, 'Audiovisual', '');
 
 --
 -- Índices para tabelas despejadas
@@ -246,7 +270,8 @@ ALTER TABLE `predio`
 --
 ALTER TABLE `recursos`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_espaco` (`id_espaco`);
+  ADD KEY `id_espaco` (`id_espaco`),
+  ADD KEY `fk_recursos_predio` (`id_predio`);
 
 --
 -- AUTO_INCREMENT para tabelas despejadas
@@ -262,7 +287,7 @@ ALTER TABLE `campus`
 -- AUTO_INCREMENT de tabela `espacos`
 --
 ALTER TABLE `espacos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de tabela `espaco_fotos`
@@ -298,13 +323,13 @@ ALTER TABLE `evento_status`
 -- AUTO_INCREMENT de tabela `predio`
 --
 ALTER TABLE `predio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `recursos`
 --
 ALTER TABLE `recursos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Restrições para tabelas despejadas
@@ -351,6 +376,7 @@ ALTER TABLE `predio`
 -- Restrições para tabelas `recursos`
 --
 ALTER TABLE `recursos`
+  ADD CONSTRAINT `fk_recursos_predio` FOREIGN KEY (`id_predio`) REFERENCES `predio` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `recursos_ibfk_1` FOREIGN KEY (`id_espaco`) REFERENCES `espacos` (`id`) ON DELETE CASCADE;
 COMMIT;
 
