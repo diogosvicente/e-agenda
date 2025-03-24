@@ -3,6 +3,12 @@
 
 <link rel="stylesheet" href="<?php echo base_url('public/assets/css/scheduling/style.css'); ?>">
 
+<?php echo "<pre>";
+
+print_r($userInfo);
+
+echo "</pre>"; ?>
+
 <section>
 	<?php if (!empty($id)): ?>
 		<h3 class="page-title">Editar Solicitação</h3>
@@ -14,7 +20,12 @@
 		<form action="<?php echo base_url('scheduling/validate'); ?>" id="formScheduling" name="formScheduling" enctype="multipart/form-data" role="form" class="form-scheduling" method="post" accept-charset="utf-8">
 
         <?= csrf_field() ?>
+        <script>
+            window.loggedUser = <?= json_encode($userInfo); ?>;
+            window.users = <?= json_encode($users); ?>;
+        </script>
         <input type="hidden" name="baseUrl" value="<?php echo base_url(); ?>" id="baseUrl" />
+
 
 			<ul class="nav nav-tabs">
 				<li class="nav-item"><a class="nav-link active" id="evento-tab" data-toggle="tab" href="#evento">Nome do Evento</a></li>
@@ -44,7 +55,7 @@
                         <div class="row mb-3">
                             <div class="col-sm-12">
                                 <label for="titulo_evento" class="form-label">Nome da Atividade / Evento: *</label>
-                                <input type="text" name="titulo_evento" id="titulo_evento" label="titulo_evento:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->titulo_evento)) ? $registro->titulo_evento : '' ?>" />
+                                <input value="Evento Teste 1" type="text" name="titulo_evento" id="titulo_evento" label="titulo_evento:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->titulo_evento)) ? $registro->titulo_evento : '' ?>" />
                                 <div id="divError-titulo_evento" class="invalid-feedback"></div>
                                 <div id="divNotice-titulo_evento" class="notice-feedback"></div>
                             </div>
@@ -59,43 +70,55 @@
                     * -------------------------------------------------------------------
                     -->
                     <div class="tab-pane fade" id="solicitante">
+                        <!-- Solicitante -->
                         <fieldset class="fieldset-child">
                             <legend class="fieldset-child">Solicitante</legend>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input type="checkbox" checked name="eu_sou_o_solicitante" value="S" id="eu_sou_o_solicitante" class="form-check-input" data-required="*" />
+                                        <input type="checkbox" checked name="eu_sou_o_solicitante" value="S" id="eu_sou_o_solicitante" class="form-check-input" data-required="*" disabled />
                                         <label for="eu_sou_o_solicitante" class="form-check-label">
                                             Eu sou o solicitante
                                         </label>
                                     </div>
-                                    <div id="divError-eu_sou_o_solicitante" class="invalid-feedback"></div>
-                                    <div id="divNotice-eu_sou_o_solicitante" class="notice-feedback"></div>
                                 </div>
                             </div>
                             <div class="row">
+                                <!-- Nome do Solicitante (apenas leitura, vindo do usuário logado) -->
                                 <div class="col-sm-6">
                                     <label for="solicitante_nome" class="form-label">Nome: *</label>
                                     <input type="text" name="solicitante_nome" id="solicitante_nome" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->solicitante_nome)) ? $registro->solicitante_nome : '' ?>" />
+                                        value="<?php echo (isset($registro->solicitante_nome)) ? $registro->solicitante_nome : '' ?>" readonly />
                                     <div id="divError-solicitante_nome" class="invalid-feedback"></div>
                                     <div id="divNotice-solicitante_nome" class="notice-feedback"></div>
                                 </div>
+                                <!-- Unidade do Solicitante (select preenchido com as unidades) -->
                                 <div class="col-sm-6">
                                     <label for="solicitante_unidade" class="form-label">Unidade: *</label>
-                                    <input type="text" name="solicitante_unidade" id="solicitante_unidade" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->solicitante_unidade)) ? $registro->solicitante_unidade : '' ?>" />
+                                    <select name="solicitante_unidade" id="solicitante_unidade" class="form-control" required="required" disabled >
+                                        <option value="">Selecione a unidade</option>
+                                        <?php if(isset($units) && is_array($units)): ?>
+                                            <?php foreach($units as $unit): ?>
+                                                <option value="<?php echo $unit['id']; ?>" <?php echo (isset($registro->solicitante_unidade) && $registro->solicitante_unidade == $unit['nome']) ? 'selected' : ''; ?>>
+                                                    <?php echo $unit['nome']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
                                     <div id="divError-solicitante_unidade" class="invalid-feedback"></div>
                                     <div id="divNotice-solicitante_unidade" class="notice-feedback"></div>
                                 </div>
                             </div>
                         </fieldset>
+
+                        <!-- Responsável -->
                         <fieldset class="fieldset-child">
                             <legend class="fieldset-child">Responsável</legend>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input type="checkbox" checked name="eu_sou_o_responsavel" value="S" id="eu_sou_o_responsavel" class="form-check-input" data-required="*" />
+                                        <!-- O checkbox define se os dados do responsável serão os do usuário logado -->
+                                        <input checked type="checkbox" name="eu_sou_o_responsavel" value="S" id="eu_sou_o_responsavel" class="form-check-input" data-required="*" />
                                         <label for="eu_sou_o_responsavel" class="form-check-label">
                                             Eu sou o responsável
                                         </label>
@@ -105,40 +128,59 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <!-- Select para escolher o responsável dentre os usuários do sistema pai -->
                                 <div class="col-sm-6">
                                     <label for="responsavel_nome" class="form-label">Nome: *</label>
-                                    <input type="text" name="responsavel_nome" id="responsavel_nome" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->responsavel_nome)) ? $registro->responsavel_nome : '' ?>" />
+                                    <select name="responsavel_nome" id="responsavel_nome" class="form-control" required="required" onchange="fillResponsavelDetails()">
+                                        <option value="">Selecione o responsável</option>
+                                        <?php if(isset($users) && is_array($users)): ?>
+                                            <?php foreach($users as $user): ?>
+                                                <option value="<?php echo $user['id']; ?>" <?php echo (isset($registro->responsavel_nome) && $registro->responsavel_nome == $user['nome']) ? 'selected' : ''; ?>>
+                                                    <?php echo $user['nome']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
                                     <div id="divError-responsavel_nome" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_nome" class="notice-feedback"></div>
                                 </div>
+                                <!-- Unidade/Departamento do responsável -->
                                 <div class="col-sm-6">
-                                    <label for="responsavel_unidade" class="form-label">Unidade: *</label>
-                                    <input type="text" name="responsavel_unidade" id="responsavel_unidade" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->responsavel_unidade)) ? $registro->responsavel_unidade : '' ?>" />
+                                    <label for="responsavel_unidade" class="form-label">Unidade/Departamento: *</label>
+                                    <select name="responsavel_unidade" id="responsavel_unidade" class="form-control" required="required" disabled >
+                                        <option value="">Selecione a unidade</option>
+                                        <?php if(isset($units) && is_array($units)): ?>
+                                            <?php foreach($units as $unit): ?>
+                                                <option value="<?php echo $unit['id']; ?>" <?php echo (isset($registro->responsavel_unidade) && $registro->responsavel_unidade == $unit['nome']) ? 'selected' : ''; ?>>
+                                                    <?php echo $unit['nome']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
                                     <div id="divError-responsavel_unidade" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_unidade" class="notice-feedback"></div>
                                 </div>
                             </div>
                             <div class="row">
+                                <!-- E-mail e Telefones do responsável -->
                                 <div class="col-sm-4">
                                     <label for="responsavel_email" class="form-label">E-mail: *</label>
                                     <input type="text" name="responsavel_email" id="responsavel_email" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->responsavel_email)) ? $registro->responsavel_email : '' ?>" />
+                                        value="<?php echo (isset($registro->responsavel_email)) ? $registro->responsavel_email : '' ?>" readonly/>
                                     <div id="divError-responsavel_email" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_email" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="responsavel_telefone1" class="form-label">Telefone 1: *</label>
                                     <input type="text" name="responsavel_telefone1" id="responsavel_telefone1" class="form-control" autocomplete="off" required="required" 
-                                        value="<?php echo (isset($registro->responsavel_telefone1)) ? $registro->responsavel_telefone1 : '' ?>" />
+                                        value="<?php echo (isset($registro->responsavel_telefone1)) ? $registro->responsavel_telefone1 : '' ?>" readonly/>
                                     <div id="divError-responsavel_telefone1" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_telefone1" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="responsavel_telefone2" class="form-label">Telefone 2: </label>
                                     <input type="text" name="responsavel_telefone2" id="responsavel_telefone2" class="form-control" autocomplete="off" 
-                                        value="<?php echo (isset($registro->responsavel_telefone2)) ? $registro->responsavel_telefone2 : '' ?>" />
+                                        value="<?php echo (isset($registro->responsavel_telefone2)) ? $registro->responsavel_telefone2 : '' ?>" readonly/>
                                     <div id="divError-responsavel_telefone2" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_telefone2" class="notice-feedback"></div>
                                 </div>
@@ -170,7 +212,7 @@
                                                             <?php if (!empty($predio->espacos)): ?>
                                                                 <optgroup label="➝ <?php echo esc($predio->nome); ?>">
                                                                     <?php foreach ($predio->espacos as $espaco): ?>
-                                                                        <option value="<?php echo esc($espaco->id); ?>">
+                                                                        <option selected value="<?php echo esc($espaco->id); ?>">
                                                                             <?php echo esc($espaco->nome) . " (Capacidade: " . esc($espaco->capacidade) . ")"; ?>
                                                                         </option>
                                                                     <?php endforeach; ?>
@@ -192,19 +234,19 @@
                                         <div class="row mt-3 data-hora-entry">
                                             <div class="col-sm-4">
                                                 <label for="data_inicio_1" class="form-label">Data Início: *</label>
-                                                <input type="date" name="data_inicio[]" id="data_inicio_1" class="form-control" required>
+                                                <input value="2025-03-24" type="date" name="data_inicio[]" id="data_inicio_1" class="form-control" required>
                                                 <div id="divError-data_inicio_1" class="invalid-feedback"></div>
                                                 <div id="divNotice-data_inicio_1" class="notice-feedback"></div>
                                             </div>
                                             <div class="col-sm-4">
                                                 <label for="hora_inicio_1" class="form-label">Hora de Início: *</label>
-                                                <input type="time" name="hora_inicio[]" id="hora_inicio_1" class="form-control" required>
+                                                <input value="10:30" type="time" name="hora_inicio[]" id="hora_inicio_1" class="form-control" required>
                                                 <div id="divError-hora_inicio_1" class="invalid-feedback"></div>
                                                 <div id="divNotice-hora_inicio_1" class="notice-feedback"></div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <label for="hora_fim_1" class="form-label">Hora de Fim: *</label>
-                                                <input type="time" name="hora_fim[]" id="hora_fim_1" class="form-control" required>
+                                                <input value="16:30" type="time" name="hora_fim[]" id="hora_fim_1" class="form-control" required>
                                                 <div id="divError-hora_fim_1" class="invalid-feedback"></div>
                                                 <div id="divNotice-hora_fim_1" class="notice-feedback"></div>
                                             </div>
@@ -224,7 +266,6 @@
                             </div>
                         </fieldset>
                     </div>
-
 
                     <!--
                     * -------------------------------------------------------------------

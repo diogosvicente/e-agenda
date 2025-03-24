@@ -1,3 +1,5 @@
+let baseUrl = $("#baseUrl").val();
+
 $(document).ready(function () {
     // Botão para validar o formulário
     $("#btnValidateEvento").click(function () {
@@ -71,7 +73,7 @@ function validarCampo(campo) {
  */
 function resetFormEventoMessages() {
     $("[id^='msg']").html("").hide();
-    $("[id^='divError-']").html("").hide();  // ou .remove() se quiser remover do DOM
+    $("[id^='divError-']").html("").hide();
     $("[id^='divNotice']").html("").hide();
     $("*").removeClass("is-invalid is-notice red");
 }
@@ -98,16 +100,19 @@ function validateEvento() {
 
     $.ajax({
         type: 'POST',
-        url: baseUrl + 'eventos/salvar',
+        url: baseUrl + 'agendamento/salvar',
         data: formData,
         processData: false,
         contentType: false,
         beforeSend: function () {
             $("#divLoading").show();
+            $("#msgSucessoGeral").hide();
+            $("#msgErroGeral").hide();
+            $("#msgAvisoGeral").hide();
         },
         success: function (response) {
             if (response.success) {
-                $("#msgSucessoGeral").html("Evento cadastrado com sucesso!").show();
+                $("#msgSucessoGeral").html(response.message).show();
                 $("#btnLimpar").show();
                 $("#formScheduling :input").prop("readonly", true);
                 $("#formScheduling select").prop("disabled", true);
@@ -118,7 +123,7 @@ function validateEvento() {
                     <a class="btn btn-primary" href="${baseUrl}eventos">Voltar à Listagem</a>
                 `);
             } else {
-                $("#msgErroGeral").html("Erro ao cadastrar evento. Tente novamente.").show();
+                $("#msgErroGeral").html(response.message).show();
             }
         },
         error: function () {

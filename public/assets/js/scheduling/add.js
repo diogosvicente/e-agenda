@@ -1,6 +1,6 @@
 $(document).ready(function () {
     let espacoCount = 1;
-    let base_url = $("[name=baseUrl]").val();
+    let base_url = $("#baseUrl").val(); // Obtido do input hidden
 
     // Adicionar novo espaço
     $("#addEspaco").click(function () {
@@ -90,17 +90,16 @@ $(document).ready(function () {
 
     // Remover Espaço e atualizar contador
     $(document).on("click", ".removeEspaco", function () {
-    $(this).closest(".espaco-entry").remove();
-    
-    // Renomeia os espaços corretamente após a remoção
-    $(".espaco-entry").each(function (index) {
-        $(this).attr("data-espaco", index + 1);
-        $(this).find("legend").text("Espaço " + (index + 1));
+        $(this).closest(".espaco-entry").remove();
+
+        // Renomeia os espaços corretamente após a remoção
+        $(".espaco-entry").each(function (index) {
+            $(this).attr("data-espaco", index + 1);
+            $(this).find("legend").text("Espaço " + (index + 1));
+        });
+
+        atualizarRecursos();
     });
-
-    atualizarRecursos();
-});
-
 
     // Monitorar seleção de espaços e carregar recursos
     $(document).on("change", ".espaco-select", function () {
@@ -131,12 +130,12 @@ $(document).ready(function () {
             let recursoId = $(this).val();
             let quantidade = $(this).closest(".recurso-item").find(".quantidade-input").val();
             let marcado = $(this).prop("checked");
-    
+
             if (marcado) {
                 recursosSelecionados[recursoId] = quantidade; // Armazena ID do recurso e quantidade
             }
         });
-    
+
         $.ajax({
             url: base_url + "recursos/getByEspacos",
             type: "POST",
@@ -145,7 +144,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     let recursosHtml = "<fieldset class='fieldset-child'><legend class='fieldset-child'>Recursos Disponíveis</legend>";
-    
+
                     // Recursos por Espaço
                     for (let espaco in response.recursos_por_espaco) {
                         let nomeEspaco = response.recursos_por_espaco[espaco][0]?.nome_espaco || `Espaço ${espaco}`;
@@ -154,7 +153,7 @@ $(document).ready(function () {
                             recursosHtml += criarRecursoHTML(recurso, recursosSelecionados);
                         });
                     }
-    
+
                     // Recursos por Prédio
                     for (let predio in response.recursos_por_predio) {
                         let nomePredio = response.recursos_por_predio[predio][0]?.nome_predio || `Prédio ${predio}`;
@@ -163,7 +162,7 @@ $(document).ready(function () {
                             recursosHtml += criarRecursoHTML(recurso, recursosSelecionados);
                         });
                     }
-    
+
                     // Recursos Gerais
                     if (response.recursos_gerais.length > 0) {
                         recursosHtml += `<strong>Recursos Gerais:</strong><br>`;
@@ -171,9 +170,9 @@ $(document).ready(function () {
                             recursosHtml += criarRecursoHTML(recurso, recursosSelecionados);
                         });
                     }
-    
+
                     recursosHtml += "</fieldset>";
-    
+
                     // Atualiza a View
                     $("#recursos-gerais").html(recursosHtml);
                     $("#recursos-lista").show();
@@ -185,12 +184,12 @@ $(document).ready(function () {
             }
         });
     }
-    
+
     // Função para criar os elementos dos recursos, preservando seleções
     function criarRecursoHTML(recurso, recursosSelecionados) {
         let checked = recursosSelecionados.hasOwnProperty(recurso.id) ? "checked" : "";
         let qtd = recursosSelecionados[recurso.id] !== undefined ? recursosSelecionados[recurso.id] : ""; // Mantém o valor correto
-    
+
         return `
             <div class="recurso-item d-flex align-items-center justify-content-between p-2 border rounded">
                 <div class="d-flex align-items-center">
@@ -209,7 +208,7 @@ $(document).ready(function () {
             </div>
         `;
     }
-    
+
     // Ativar/desativar o input de quantidade ao marcar/desmarcar o checkbox
     $(document).on("change", ".recurso-checkbox", function () {
         let inputQtd = $(this).closest(".recurso-item").find(".quantidade-input");
@@ -220,5 +219,64 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).tab('show'); // Usa o Bootstrap para alternar corretamente
     });
-    
+
+    // --- Funções para manipulação do responsável ---
+    // Assumindo que as variáveis globais 'loggedUser' e 'users' já foram definidas na página
+    let loggedUser = window.loggedUser || {};
+    let users = window.users || [];
+
+    function toggleResponsavel(){
+        let checkbox = $("#eu_sou_o_responsavel");
+        let select = $("#responsavel_nome");
+
+        $("#solicitante_nome").val(loggedUser.nome);
+        $("#solicitante_unidade").val(loggedUser.id_unidade);
+
+        if(checkbox.is(":checked")){
+            if(loggedUser){
+                $("#responsavel_nome").val(loggedUser.id_usuario || "");
+                $("#responsavel_unidade").val(loggedUser.id_unidade || "");
+                $("#responsavel_email").val(loggedUser.email || "");
+                $("#responsavel_telefone1").val(loggedUser.telefone1 || "");
+                $("#responsavel_telefone2").val(loggedUser.telefone2 || "");
+                select.prop("disabled", true);
+            }
+        } else {
+            select.prop("disabled", false);
+            select.val("");
+            $("#responsavel_unidade").val("");
+            $("#responsavel_email").val("");
+            $("#responsavel_telefone1").val("");
+            $("#responsavel_telefone2").val("");
+        }
+    }
+
+    function fillResponsavelDetails(){
+        if($("#eu_sou_o_responsavel").is(":checked")) return;
+        let select = $("#responsavel_nome");
+        let userId = select.val();
+        let selectedUser = users.find(function(u){ return u.id == userId; });
+        if(selectedUser){
+            $("#responsavel_unidade").val(selectedUser.id_unidade || "");
+            $("#responsavel_email").val(selectedUser.email || "");
+            $("#responsavel_telefone1").val(selectedUser.telefone1 || "");
+            $("#responsavel_telefone2").val(selectedUser.telefone2 || "");
+        } else {
+            $("#responsavel_unidade").val("");
+            $("#responsavel_email").val("");
+            $("#responsavel_telefone1").val("");
+            $("#responsavel_telefone2").val("");
+        }
+    }
+
+    // Vincula os eventos aos campos do responsável
+    $("#eu_sou_o_responsavel").change(toggleResponsavel);
+    $("#responsavel_nome").change(fillResponsavelDetails);
+
+    // Expondo as funções para o escopo global
+    window.fillResponsavelDetails = fillResponsavelDetails;
+    window.toggleResponsavel = toggleResponsavel;
+
+    // Inicializa o estado do responsável ao carregar a página
+    toggleResponsavel();
 });
