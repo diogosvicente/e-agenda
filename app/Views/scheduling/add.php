@@ -3,12 +3,6 @@
 
 <link rel="stylesheet" href="<?php echo base_url('public/assets/css/scheduling/style.css'); ?>">
 
-<?php echo "<pre>";
-
-print_r($userInfo);
-
-echo "</pre>"; ?>
-
 <section>
 	<?php if (!empty($id)): ?>
 		<h3 class="page-title">Editar Solicitação</h3>
@@ -115,16 +109,23 @@ echo "</pre>"; ?>
                         <fieldset class="fieldset-child">
                             <legend class="fieldset-child">Responsável</legend>
                             <div class="row">
-                                <div class="col-12">
+                                <div class="col-4">
                                     <div class="form-check">
                                         <!-- O checkbox define se os dados do responsável serão os do usuário logado -->
-                                        <input checked type="checkbox" name="eu_sou_o_responsavel" value="S" id="eu_sou_o_responsavel" class="form-check-input" data-required="*" />
+                                        <input checked type="checkbox" name="eu_sou_o_responsavel" value="S" id="eu_sou_o_responsavel" class="form-check-input" />
                                         <label for="eu_sou_o_responsavel" class="form-check-label">
                                             Eu sou o responsável
                                         </label>
                                     </div>
-                                    <div id="divError-eu_sou_o_responsavel" class="invalid-feedback"></div>
-                                    <div id="divNotice-eu_sou_o_responsavel" class="notice-feedback"></div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-check">
+                                        <!-- O checkbox define se os dados do responsável serão de uma pessoa externa -->
+                                        <input checked type="checkbox" name="responsavel_externo" value="S" id="responsavel_externo" class="form-check-input" />
+                                        <label for="responsavel_externo" class="form-check-label">
+                                            O responsável é externo
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -183,6 +184,82 @@ echo "</pre>"; ?>
                                         value="<?php echo (isset($registro->responsavel_telefone2)) ? $registro->responsavel_telefone2 : '' ?>" readonly/>
                                     <div id="divError-responsavel_telefone2" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_telefone2" class="notice-feedback"></div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Aprovador -->
+                        <fieldset class="fieldset-child">
+                            <legend class="fieldset-child">Aprovador</legend>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <!-- O checkbox define se os dados do aprovador serão os do usuário logado -->
+                                        <input checked type="checkbox" name="eu_sou_o_aprovador" value="S" id="eu_sou_o_aprovador" class="form-check-input" data-required="*" />
+                                        <label for="eu_sou_o_aprovador" class="form-check-label">
+                                            Eu sou o aprovador
+                                        </label>
+                                    </div>
+                                    <div id="divError-eu_sou_o_aprovador" class="invalid-feedback"></div>
+                                    <div id="divNotice-eu_sou_o_aprovador" class="notice-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Select para escolher o aprovador dentre os usuários do sistema pai -->
+                                <div class="col-sm-6">
+                                    <label for="aprovador_nome" class="form-label">Nome: *</label>
+                                    <select name="aprovador_nome" id="aprovador_nome" class="form-control" required="required" onchange="fillAprovadorDetails()">
+                                        <option value="">Selecione o aprovador</option>
+                                        <?php if(isset($users) && is_array($users)): ?>
+                                            <?php foreach($users as $user): ?>
+                                                <option value="<?php echo $user['id']; ?>" <?php echo (isset($registro->aprovador_nome) && $registro->aprovador_nome == $user['nome']) ? 'selected' : ''; ?>>
+                                                    <?php echo $user['nome']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div id="divError-aprovador_nome" class="invalid-feedback"></div>
+                                    <div id="divNotice-aprovador_nome" class="notice-feedback"></div>
+                                </div>
+                                <!-- Unidade/Departamento do aprovador -->
+                                <div class="col-sm-6">
+                                    <label for="aprovador_unidade" class="form-label">Unidade/Departamento: *</label>
+                                    <select name="aprovador_unidade" id="aprovador_unidade" class="form-control" required="required" disabled >
+                                        <option value="">Selecione a unidade</option>
+                                        <?php if(isset($units) && is_array($units)): ?>
+                                            <?php foreach($units as $unit): ?>
+                                                <option value="<?php echo $unit['id']; ?>" <?php echo (isset($registro->aprovador_unidade) && $registro->aprovador_unidade == $unit['nome']) ? 'selected' : ''; ?>>
+                                                    <?php echo $unit['nome']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div id="divError-aprovador_unidade" class="invalid-feedback"></div>
+                                    <div id="divNotice-aprovador_unidade" class="notice-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- E-mail e Telefones do aprovador -->
+                                <div class="col-sm-4">
+                                    <label for="aprovador_email" class="form-label">E-mail: *</label>
+                                    <input type="text" name="aprovador_email" id="aprovador_email" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->aprovador_email)) ? $registro->aprovador_email : '' ?>" readonly/>
+                                    <div id="divError-aprovador_email" class="invalid-feedback"></div>
+                                    <div id="divNotice-aprovador_email" class="notice-feedback"></div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="aprovador_telefone1" class="form-label">Telefone 1: *</label>
+                                    <input type="text" name="aprovador_telefone1" id="aprovador_telefone1" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->aprovador_telefone1)) ? $registro->aprovador_telefone1 : '' ?>" readonly/>
+                                    <div id="divError-aprovador_telefone1" class="invalid-feedback"></div>
+                                    <div id="divNotice-aprovador_telefone1" class="notice-feedback"></div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="aprovador_telefone2" class="form-label">Telefone 2: </label>
+                                    <input type="text" name="aprovador_telefone2" id="aprovador_telefone2" class="form-control" autocomplete="off" 
+                                        value="<?php echo (isset($registro->aprovador_telefone2)) ? $registro->aprovador_telefone2 : '' ?>" readonly/>
+                                    <div id="divError-aprovador_telefone2" class="invalid-feedback"></div>
+                                    <div id="divNotice-aprovador_telefone2" class="notice-feedback"></div>
                                 </div>
                             </div>
                         </fieldset>

@@ -64,7 +64,7 @@ function validateLogin() {
                 $("#msgSucessoGeral").html(retorno.message).show();
                 // $("#msgAvisoGeral").html('Você será direcionado para a página inicial em 3 segundos.').show();
                 setTimeout(function () {
-                    window.location.href = $("[name=baseUrl]").val();
+                    window.location.href = $("[name=baseUrl]").val() + '/calendario';
                 }, 1000);
 
             } else if (retorno.status.substr(0, 5) == "ERROR") {

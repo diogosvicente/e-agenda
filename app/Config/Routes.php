@@ -14,14 +14,13 @@ $routes->group('', function ($routes) {
 
 // Rotas protegidas (Requer autenticação)
 $routes->group('', ['filter' => 'auth'], function ($routes) {
-    // Página inicial e autenticação
-    $routes->get('/', 'HomeController::index');
+    // Página de login/autenticação
     $routes->get('logout', 'LoginController::logout');
 
     // Grupo de rotas para o Calendário
-    $routes->group('calendario', function ($routes) {
+    $routes->group('/', function ($routes) {
         $routes->get('', 'FullCalendarController::index'); // Página do calendário
-        $routes->get('data', 'FullCalendarController::getCalendarData'); // Dados do calendário
+        $routes->get('calendario/data', 'FullCalendarController::getCalendarData'); // Dados do calendário
     });
 
     // Grupo de rotas para Agendamento

@@ -100,7 +100,6 @@
 								<?php if (!isset($_COOKIE['jwt_token'])) : ?>
 									<li><a href="<?= base_url('login'); ?>">Entrar</a></li>
 								<?php else : ?>
-									<li><a href="<?= base_url('calendario'); ?>">Calendário</a></li>
 									<li><a href="#" onclick="logout()">Sair</a></li>
 								<?php endif; ?>
 								<li><a href="<?= base_url('sobre'); ?>">Sobre o sistema</a></li>
@@ -229,29 +228,6 @@
 	<script src="<?= base_url('public/assets/js/sso/auth.js'); ?>"></script>
 	<!-- FIM - Javascripts comuns a todas as páginas -->
 
-	<!-- Javascript da página -->
-	<?php 
-		$scripts = [
-			'login'             => 'public/assets/js/login/login.js',
-			'esqueceu_sua_senha'=> 'public/assets/js/login/forgotPassword.js',
-			'primeiro_acesso'   => 'public/assets/js/login/firstAccess.js',
-			'alterar_a_senha'   => 'public/assets/js/login/changePassword.js'
-		];
-
-		// Captura a string da URI, ex.: "primeiro_acesso/4026210d9cdd86f2c97cc1e084e0d3ca"
-		$uri = uri_string();
-
-		// Quebra a URI em segmentos separados por '/'
-		$segments = explode('/', $uri);
-
-		// Primeiro segmento (ou vazio, se não houver)
-		$firstSegment = $segments[0] ?? '';
-
-		// Se existir no array de scripts, carrega o arquivo correspondente
-		if (isset($scripts[$firstSegment])) : 
-	?>
-		<script src="<?php echo base_url($scripts[$firstSegment]); ?>" type="text/javascript"></script>
-	<?php endif; ?>
 	<!-- FIM - Javascript da página -->
 
 	</body>

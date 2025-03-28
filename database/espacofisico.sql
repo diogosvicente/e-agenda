@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/03/2025 às 18:57
+-- Tempo de geração: 28/03/2025 às 19:55
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -106,7 +106,10 @@ CREATE TABLE `evento` (
 --
 
 INSERT INTO `evento` (`id`, `id_solicitante`, `nome_solicitante`, `id_responsavel`, `telefone_responsavel`, `email_responsavel`, `nome`, `quantidade_participantes`, `assinado_solicitante`, `assinado_componente_org`, `observacoes`) VALUES
-(1, 46, 'Diogo', 46, '21987105175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 42, 0, 0, 'Campo destinado às observações');
+(1, 46, 'Diogo', 46, '21987105175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 42, 0, 0, 'Campo destinado às observações'),
+(2, 0, 'Diogo da Silva Vicente do Nascimento', 0, '(21) 98710-5175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 0, 0, 0, ''),
+(3, 0, 'Diogo da Silva Vicente do Nascimento', 0, '(21) 98710-5175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 0, 0, 0, ''),
+(4, 0, 'Diogo da Silva Vicente do Nascimento', 0, '(21) 98710-5175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 0, 0, 0, '');
 
 -- --------------------------------------------------------
 
@@ -128,7 +131,11 @@ CREATE TABLE `evento_espaco_data_hora` (
 
 INSERT INTO `evento_espaco_data_hora` (`id`, `id_evento`, `id_espaco`, `data_hora_inicio`, `data_hora_fim`) VALUES
 (1, 1, 1, '2025-03-14 10:00:00', '2025-03-14 17:00:00'),
-(2, 1, 1, '2025-03-16 10:00:00', '2025-03-17 19:27:26');
+(2, 1, 1, '2025-03-16 10:00:00', '2025-03-17 19:27:26'),
+(3, 2, 11, '2025-03-24 10:30:00', '2025-03-24 16:30:00'),
+(4, 3, 1, '2025-03-27 16:00:00', '2025-03-27 17:30:00'),
+(5, 4, 4, '2025-03-28 12:30:00', '2025-03-28 16:30:00'),
+(6, 4, 7, '2025-03-29 12:00:00', '2025-03-29 13:00:00');
 
 -- --------------------------------------------------------
 
@@ -299,13 +306,13 @@ ALTER TABLE `espaco_fotos`
 -- AUTO_INCREMENT de tabela `evento`
 --
 ALTER TABLE `evento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `evento_recursos`
