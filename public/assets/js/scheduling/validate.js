@@ -62,6 +62,8 @@ function toggleResponsavelInterno() {
 function toggleResponsavelExterno() {
     $("#grupo-responsavel-nome-interno, #grupo-responsavel-unidade-interno").hide();
     $("#grupo-responsavel-nome-externo, #grupo-responsavel-unidade-externo").show();
+    $("#responsavel_nome, #responsavel_unidade, #responsavel_email, #responsavel_telefone1, #responsavel_telefone2").val("");
+    // Não forçamos o readonly aqui; isso será definido no handler abaixo.
 }
 
 /**
@@ -127,9 +129,15 @@ $(document).ready(function () {
         toggleResponsavelInterno();
         verificarResponsaveis();
     });
+    
     $("#responsavel_externo").on("change", function () {
         if ($(this).is(":checked")) {
             $("#eu_sou_o_responsavel").prop("checked", false);
+            // Se marcado, deixa os campos editáveis:
+            $("#responsavel_unidade, #responsavel_email, #responsavel_telefone1, #responsavel_telefone2").prop("readonly", false);
+        } else {
+            // Se desmarcado, torna-os somente leitura:
+            $("#responsavel_unidade, #responsavel_email, #responsavel_telefone1, #responsavel_telefone2").prop("readonly", true);
         }
         toggleResponsavelExterno();
         verificarResponsaveis();

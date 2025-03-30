@@ -16,7 +16,6 @@
         <?= csrf_field() ?>
         <script>
             window.loggedUser = <?= json_encode($userInfo); ?>;
-            console.log(window.loggedUser);
             window.users = <?= json_encode($users); ?>;
         </script>
         <input type="hidden" name="baseUrl" value="<?php echo base_url(); ?>" id="baseUrl" />
