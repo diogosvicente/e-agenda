@@ -1,5 +1,5 @@
 <?php $this->extend('template/base'); ?>
-<?php $this->section('content'); ?>
+<?php $this->section('content'); //echo "<pre>"; dd(print_r($units));?>
 
 <link rel="stylesheet" href="<?php echo base_url('public/assets/css/scheduling/style.css'); ?>">
 
@@ -16,6 +16,7 @@
         <?= csrf_field() ?>
         <script>
             window.loggedUser = <?= json_encode($userInfo); ?>;
+            console.log(window.loggedUser);
             window.users = <?= json_encode($users); ?>;
         </script>
         <input type="hidden" name="baseUrl" value="<?php echo base_url(); ?>" id="baseUrl" />
@@ -112,7 +113,7 @@
                                 <div class="col-4">
                                     <div class="form-check">
                                         <!-- O checkbox define se os dados do responsável serão os do usuário logado -->
-                                        <input checked type="checkbox" name="eu_sou_o_responsavel" value="S" id="eu_sou_o_responsavel" class="form-check-input" />
+                                        <input type="checkbox" name="eu_sou_o_responsavel" value="S" id="eu_sou_o_responsavel" class="form-check-input" />
                                         <label for="eu_sou_o_responsavel" class="form-check-label">
                                             Eu sou o responsável
                                         </label>
@@ -121,7 +122,7 @@
                                 <div class="col-4">
                                     <div class="form-check">
                                         <!-- O checkbox define se os dados do responsável serão de uma pessoa externa -->
-                                        <input checked type="checkbox" name="responsavel_externo" value="S" id="responsavel_externo" class="form-check-input" />
+                                        <input type="checkbox" name="responsavel_externo" value="S" id="responsavel_externo" class="form-check-input" />
                                         <label for="responsavel_externo" class="form-check-label">
                                             O responsável é externo
                                         </label>
@@ -129,10 +130,10 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <!-- Select para escolher o responsável dentre os usuários do sistema pai -->
-                                <div class="col-sm-6">
+                                <!-- Nome do Responsável - INTERNO -->
+                                <div class="col-sm-6" id="grupo-responsavel-nome-interno">
                                     <label for="responsavel_nome" class="form-label">Nome: *</label>
-                                    <select name="responsavel_nome" id="responsavel_nome" class="form-control" required="required" onchange="fillResponsavelDetails()">
+                                    <select name="responsavel_nome" id="responsavel_nome" class="form-control" required onchange="fillResponsavelDetails()">
                                         <option value="">Selecione o responsável</option>
                                         <?php if(isset($users) && is_array($users)): ?>
                                             <?php foreach($users as $user): ?>
@@ -145,10 +146,19 @@
                                     <div id="divError-responsavel_nome" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_nome" class="notice-feedback"></div>
                                 </div>
-                                <!-- Unidade/Departamento do responsável -->
-                                <div class="col-sm-6">
+
+                                <!-- Nome do Responsável - EXTERNO -->
+                                <div class="col-sm-6" id="grupo-responsavel-nome-externo">
+                                    <label for="responsavel_nome_externo" class="form-label">Nome: *</label>
+                                    <input type="text" name="responsavel_nome_externo" id="responsavel_nome_externo" class="form-control" placeholder="Digite o nome do responsável externo">
+                                    <div id="divError-responsavel_nome_externo" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_nome_externo" class="notice-feedback"></div>
+                                </div>
+
+                                <!-- Unidade do Responsável - INTERNO -->
+                                <div class="col-sm-6" id="grupo-responsavel-unidade-interno">
                                     <label for="responsavel_unidade" class="form-label">Unidade/Departamento: *</label>
-                                    <select name="responsavel_unidade" id="responsavel_unidade" class="form-control" required="required" disabled >
+                                    <select name="responsavel_unidade" id="responsavel_unidade" class="form-control" required disabled>
                                         <option value="">Selecione a unidade</option>
                                         <?php if(isset($units) && is_array($units)): ?>
                                             <?php foreach($units as $unit): ?>
@@ -161,7 +171,16 @@
                                     <div id="divError-responsavel_unidade" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_unidade" class="notice-feedback"></div>
                                 </div>
+
+                                <!-- Unidade do Responsável - EXTERNO -->
+                                <div class="col-sm-6" id="grupo-responsavel-unidade-externo">
+                                    <label for="responsavel_unidade_externo" class="form-label">Unidade/Departamento: *</label>
+                                    <input type="text" name="responsavel_unidade_externo" id="responsavel_unidade_externo" class="form-control" placeholder="Digite a unidade do responsável externo">
+                                    <div id="divError-responsavel_unidade_externo" class="invalid-feedback"></div>
+                                    <div id="divNotice-responsavel_unidade_externo" class="notice-feedback"></div>
+                                </div>
                             </div>
+
                             <div class="row">
                                 <!-- E-mail e Telefones do responsável -->
                                 <div class="col-sm-4">
@@ -195,13 +214,11 @@
                                 <div class="col-12">
                                     <div class="form-check">
                                         <!-- O checkbox define se os dados do aprovador serão os do usuário logado -->
-                                        <input checked type="checkbox" name="eu_sou_o_aprovador" value="S" id="eu_sou_o_aprovador" class="form-check-input" data-required="*" />
+                                        <input type="checkbox" name="eu_sou_o_aprovador" value="S" id="eu_sou_o_aprovador" class="form-check-input" data-required="*" />
                                         <label for="eu_sou_o_aprovador" class="form-check-label">
                                             Eu sou o aprovador
                                         </label>
                                     </div>
-                                    <div id="divError-eu_sou_o_aprovador" class="invalid-feedback"></div>
-                                    <div id="divNotice-eu_sou_o_aprovador" class="notice-feedback"></div>
                                 </div>
                             </div>
                             <div class="row">
