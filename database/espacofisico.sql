@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 28/03/2025 às 19:55
+-- Tempo de geração: 31/03/2025 às 04:05
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -101,15 +101,34 @@ CREATE TABLE `evento` (
   `observacoes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Despejando dados para a tabela `evento`
+-- Estrutura para tabela `eventos`
 --
 
-INSERT INTO `evento` (`id`, `id_solicitante`, `nome_solicitante`, `id_responsavel`, `telefone_responsavel`, `email_responsavel`, `nome`, `quantidade_participantes`, `assinado_solicitante`, `assinado_componente_org`, `observacoes`) VALUES
-(1, 46, 'Diogo', 46, '21987105175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 42, 0, 0, 'Campo destinado às observações'),
-(2, 0, 'Diogo da Silva Vicente do Nascimento', 0, '(21) 98710-5175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 0, 0, 0, ''),
-(3, 0, 'Diogo da Silva Vicente do Nascimento', 0, '(21) 98710-5175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 0, 0, 0, ''),
-(4, 0, 'Diogo da Silva Vicente do Nascimento', 0, '(21) 98710-5175', 'diogo.nascimento@uerj.br', 'Evento Teste 1', 0, 0, 0, '');
+CREATE TABLE `eventos` (
+  `id` int(11) NOT NULL,
+  `id_solicitante` int(11) NOT NULL,
+  `id_unidade_solicitante` int(11) NOT NULL,
+  `id_responsavel` int(11) DEFAULT NULL,
+  `nome_responsavel` varchar(255) DEFAULT NULL,
+  `id_unidade_responsavel` int(11) DEFAULT NULL,
+  `nome_unidade_responsavel` varchar(255) DEFAULT NULL,
+  `email_responsavel` varchar(255) DEFAULT NULL,
+  `telefone1_responsavel` varchar(20) DEFAULT NULL,
+  `telefone2_responsavel` varchar(20) DEFAULT NULL,
+  `id_aprovador` int(11) NOT NULL,
+  `id_unidade_aprovador` int(11) NOT NULL,
+  `email_aprovador` varchar(255) DEFAULT NULL,
+  `telefone1_aprovador` varchar(20) DEFAULT NULL,
+  `telefone2_aprovador` varchar(20) DEFAULT NULL,
+  `nome` varchar(255) NOT NULL,
+  `quantidade_participantes` int(11) NOT NULL,
+  `assinado_solicitante` tinyint(1) NOT NULL DEFAULT 0,
+  `assinado_componente_org` tinyint(1) NOT NULL DEFAULT 0,
+  `observacoes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -124,18 +143,6 @@ CREATE TABLE `evento_espaco_data_hora` (
   `data_hora_inicio` datetime NOT NULL,
   `data_hora_fim` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `evento_espaco_data_hora`
---
-
-INSERT INTO `evento_espaco_data_hora` (`id`, `id_evento`, `id_espaco`, `data_hora_inicio`, `data_hora_fim`) VALUES
-(1, 1, 1, '2025-03-14 10:00:00', '2025-03-14 17:00:00'),
-(2, 1, 1, '2025-03-16 10:00:00', '2025-03-17 19:27:26'),
-(3, 2, 11, '2025-03-24 10:30:00', '2025-03-24 16:30:00'),
-(4, 3, 1, '2025-03-27 16:00:00', '2025-03-27 17:30:00'),
-(5, 4, 4, '2025-03-28 12:30:00', '2025-03-28 16:30:00'),
-(6, 4, 7, '2025-03-29 12:00:00', '2025-03-29 13:00:00');
 
 -- --------------------------------------------------------
 
@@ -244,6 +251,12 @@ ALTER TABLE `evento`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `eventos`
+--
+ALTER TABLE `eventos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
@@ -306,13 +319,19 @@ ALTER TABLE `espaco_fotos`
 -- AUTO_INCREMENT de tabela `evento`
 --
 ALTER TABLE `evento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `eventos`
+--
+ALTER TABLE `eventos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de tabela `evento_recursos`
