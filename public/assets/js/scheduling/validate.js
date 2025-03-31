@@ -1,16 +1,23 @@
 let baseUrl = $("#baseUrl").val();
 
+// Função que atualiza os inputs dos IDs do aprovador
+function updateAprovadorIDs() {
+    $("#aprovador_nome_id").val( $("#aprovador_nome").val() );
+    $("#aprovador_unidade_id").val( $("#aprovador_unidade").val() );
+}
+
 /**
  * Preenche os dados do aprovador (unidade, e-mail, telefones)
  * baseado no userId fornecido.
  */
 function fillAprovadorDetails(userId) {
-    // Se userId for vazio, limpa os campos
+    // Se userId estiver vazio, limpa os campos
     if (!userId) {
         $("#aprovador_unidade").val("");
         $("#aprovador_email").val("");
         $("#aprovador_telefone1").val("");
         $("#aprovador_telefone2").val("");
+        updateAprovadorIDs();
         return;
     }
     // Busca o usuário na lista global
@@ -26,6 +33,7 @@ function fillAprovadorDetails(userId) {
         $("#aprovador_telefone1").val("");
         $("#aprovador_telefone2").val("");
     }
+    updateAprovadorIDs();
 }
 
 /**
@@ -86,14 +94,14 @@ function verificarResponsaveis() {
 function toggleAprovador() {
     if ($("#eu_sou_o_aprovador").is(":checked")) {
         if (window.loggedUser && window.loggedUser.id_usuario) {
-            // Usa os dados do usuário logado
+            // Usa os dados do usuário logado e desabilita o select
             $("#aprovador_nome").val(window.loggedUser.id_usuario).prop("disabled", true);
             $("#aprovador_unidade").val(window.loggedUser.id_unidade || "");
             $("#aprovador_email").val(window.loggedUser.email || "");
             $("#aprovador_telefone1").val(window.loggedUser.telefone1 || "");
             $("#aprovador_telefone2").val(window.loggedUser.telefone2 || "");
         } else {
-            console.error("window.loggedUser não está definido ou não possui a propriedade 'id'.");
+            console.error("window.loggedUser não está definido ou não possui a propriedade 'id_usuario'.");
         }
     } else {
         // Habilita o select para escolha manual e limpa os campos
@@ -103,6 +111,7 @@ function toggleAprovador() {
         $("#aprovador_telefone1").val("");
         $("#aprovador_telefone2").val("");
     }
+    updateAprovadorIDs();
 }
 
 $(document).ready(function () {
@@ -323,6 +332,18 @@ function dataValidation() {
             $('#responsavel_unidade_externo').addClass("is-invalid");
             $('#divError-responsavel_unidade_externo').html("O campo UNIDADE do responsável é obrigatório.").show();
         }
+        if ($.trim($("#responsavel_email").val()) === "") {
+            totalErros++;
+            totalSolicitanteMissing++;
+            $('#responsavel_email').addClass("is-invalid");
+            $('#divError-responsavel_email').html("O campo E-MAIL do responsável é obrigatório.").show();
+        }
+        if ($.trim($("#responsavel_telefone1").val()) === "") {
+            totalErros++;
+            totalSolicitanteMissing++;
+            $('#responsavel_telefone1').addClass("is-invalid");
+            $('#divError-responsavel_telefone1').html("O campo TELEFONE 1 do responsável é obrigatório.").show();
+        }
     } else if ($("#eu_sou_o_responsavel").is(":checked")) {
         if ($.trim($("#responsavel_nome").val()) === "") {
             totalErros++;
@@ -349,9 +370,31 @@ function dataValidation() {
             $('#divError-responsavel_telefone1').html("O campo TELEFONE 1 do responsável é obrigatório.").show();
         }
     } else {
+        if ($.trim($("#responsavel_nome").val()) === "") {
+            totalErros += 4;
+            totalSolicitanteMissing += 4;
+            $('#responsavel_nome').addClass("is-invalid");
+            $('#divError-responsavel_nome').html("O campo NOME do responsável é obrigatório.").show();
+            $('#responsavel_unidade').addClass("is-invalid");
+            $('#divError-responsavel_unidade').html("O campo UNIDADE do responsável é obrigatório.").show();
+            $('#responsavel_email').addClass("is-invalid");
+            $('#divError-responsavel_email').html("O campo E-MAIL do responsável é obrigatório.").show();
+            $('#responsavel_telefone1').addClass("is-invalid");
+            $('#divError-responsavel_telefone1').html("O campo TELEFONE 1 do responsável é obrigatório.").show();
+        }
+    }
+
+    if ($.trim($("#aprovador_nome").val()) === "") {
         totalErros++;
         totalSolicitanteMissing++;
-        $("#divError-responsavel_nome").html("Selecione se o responsável é interno ou externo.").show();
+        $('#aprovador_nome').addClass("is-invalid");
+        $('#divError-aprovador_nome').html("O campo NOME do aprovador é obrigatório.").show();
+    }
+    if ($.trim($("#aprovador_unidade").val()) === "") {
+        totalErros++;
+        totalSolicitanteMissing++;
+        $('#aprovador_unidade').addClass("is-invalid");
+        $('#divError-aprovador_unidade').html("O campo UNIDADE do aprovador é obrigatório.").show();
     }
     
     // Validação dinâmica para campos em array (Espaços e horários)

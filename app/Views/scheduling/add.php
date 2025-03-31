@@ -81,6 +81,8 @@
                                 <!-- Nome do Solicitante (apenas leitura, vindo do usuário logado) -->
                                 <div class="col-sm-6">
                                     <label for="solicitante_nome" class="form-label">Nome: *</label>
+                                    <input type="text" name="id_solicitante" id="id_solicitante" class="form-control" autocomplete="off" required="required" 
+                                        value="<?php echo (isset($registro->id_solicitante)) ? $registro->id_solicitante : '' ?>" readonly hidden />
                                     <input type="text" name="solicitante_nome" id="solicitante_nome" class="form-control" autocomplete="off" required="required" 
                                         value="<?php echo (isset($registro->solicitante_nome)) ? $registro->solicitante_nome : '' ?>" readonly />
                                     <div id="divError-solicitante_nome" class="invalid-feedback"></div>
@@ -131,6 +133,7 @@
                             <div class="row">
                                 <!-- Nome do Responsável - INTERNO -->
                                 <div class="col-sm-6" id="grupo-responsavel-nome-interno">
+                                    <input type="text" name="responsavel_nome_id" id="responsavel_nome_id">
                                     <label for="responsavel_nome" class="form-label">Nome: *</label>
                                     <select name="responsavel_nome" id="responsavel_nome" class="form-control" required onchange="fillResponsavelDetails()">
                                         <option value="">Selecione o responsável</option>
@@ -156,6 +159,7 @@
 
                                 <!-- Unidade do Responsável - INTERNO -->
                                 <div class="col-sm-6" id="grupo-responsavel-unidade-interno">
+                                    <input type="text" name="responsavel_unidade_id" id="responsavel_unidade_id">
                                     <label for="responsavel_unidade" class="form-label">Unidade/Departamento: *</label>
                                     <select name="responsavel_unidade" id="responsavel_unidade" class="form-control" required disabled>
                                         <option value="">Selecione a unidade</option>
@@ -223,6 +227,7 @@
                             <div class="row">
                                 <!-- Select para escolher o aprovador dentre os usuários do sistema pai -->
                                 <div class="col-sm-6">
+                                    <input type="text" name="aprovador_nome_id" id="aprovador_nome_id">
                                     <label for="aprovador_nome" class="form-label">Nome: *</label>
                                     <select name="aprovador_nome" id="aprovador_nome" class="form-control" required="required" onchange="fillAprovadorDetails()">
                                         <option value="">Selecione o aprovador</option>
@@ -239,6 +244,7 @@
                                 </div>
                                 <!-- Unidade/Departamento do aprovador -->
                                 <div class="col-sm-6">
+                                    <input type="text" name="aprovador_unidade_id" id="aprovador_unidade_id">
                                     <label for="aprovador_unidade" class="form-label">Unidade/Departamento: *</label>
                                     <select name="aprovador_unidade" id="aprovador_unidade" class="form-control" required="required" disabled >
                                         <option value="">Selecione a unidade</option>

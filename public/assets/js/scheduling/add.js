@@ -225,13 +225,20 @@ $(document).ready(function () {
     let loggedUser = window.loggedUser || {};
     let users = window.users || [];
 
+    // Função que copia os valores dos selects para os inputs correspondentes
+    function updateResponsavelIDs() {
+        $("#responsavel_nome_id").val( $("#responsavel_nome").val() );
+        $("#responsavel_unidade_id").val( $("#responsavel_unidade").val() );
+    }
+
     function toggleResponsavel(){
         let checkbox = $("#eu_sou_o_responsavel");
         let select = $("#responsavel_nome");
-
+    
+        $("#id_solicitante").val(loggedUser.id_usuario);
         $("#solicitante_nome").val(loggedUser.nome);
         $("#solicitante_unidade").val(loggedUser.id_unidade);
-
+    
         if(checkbox.is(":checked")){
             if(loggedUser){
                 $("#responsavel_nome").val(loggedUser.id_usuario || "");
@@ -249,8 +256,9 @@ $(document).ready(function () {
             $("#responsavel_telefone1").val("");
             $("#responsavel_telefone2").val("");
         }
+        updateResponsavelIDs();
     }
-
+    
     function fillResponsavelDetails(){
         if($("#eu_sou_o_responsavel").is(":checked")) return;
         let select = $("#responsavel_nome");
@@ -267,6 +275,7 @@ $(document).ready(function () {
             $("#responsavel_telefone1").val("");
             $("#responsavel_telefone2").val("");
         }
+        updateResponsavelIDs();
     }
 
     // Vincula os eventos aos campos do responsável

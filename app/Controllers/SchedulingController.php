@@ -81,6 +81,8 @@ class SchedulingController extends BaseController
         // Recupera os dados do formulário via POST
         $post = $this->request->getPost();
 
+        echo "<pre>"; dd(print_r($post));
+
         // Processa os arrays de espaços e horários
         $espacos     = $post['espaco']       ?? [];
         $datas       = $post['data_inicio']  ?? [];
@@ -120,21 +122,41 @@ class SchedulingController extends BaseController
             }
         }
 
-        // Monta os dados gerais do evento para a tabela "evento"
+        // Monta os dados gerais do evento para a tabela "eventos"
         $eventoData = [
-            'id_solicitante'       => isset($this->userInfo['id']) ? $this->userInfo['id'] : 0,
-            'nome_solicitante'     => $post['solicitante_nome'] ?? '',
-            'id_responsavel'       => ($post['eu_sou_o_responsavel'] === 'S')
-                                        ? (isset($this->userInfo['id']) ? $this->userInfo['id'] : 0)
-                                        : $post['responsavel_nome'], // O <select> deve enviar o id do responsável
-            'telefone_responsavel' => $post['responsavel_telefone1'] ?? '',
-            'email_responsavel'    => $post['responsavel_email'] ?? '',
-            'nome'                 => $post['titulo_evento'] ?? '',
-            'quantidade_participantes' => 0,
+            // Dados do solicitante
+            'id_solicitante'         => isset($this->userInfo['id']) ? $this->userInfo['id'] : 0,
+            'id_unidade_solicitante' => isset($this->userInfo['id_unidade']) ? $this->userInfo['id_unidade'] : 0,
+            
+            // Dados do responsável:
+            // Se interno, utiliza os dados do usuário logado e deixa os campos de responsável externo nulos;
+            // se externo, utiliza os campos do formulário.
+            'id_responsavel'           => (isset($post['eu_sou_o_responsavel']) && $post['eu_sou_o_responsavel'] === 'S') ? (isset($this->userInfo['id']) ? $this->userInfo['id'] : 0) : null,
+            'id_unidade_responsavel'   => (isset($post['eu_sou_o_responsavel']) && $post['eu_sou_o_responsavel'] === 'S') ? (isset($this->userInfo['id_unidade']) ? $this->userInfo['id_unidade'] : 0) : null,
+            'nome_responsavel'         => (isset($post['responsavel_externo']) && $post['responsavel_externo'] === 'S') ? ($post['responsavel_nome_externo'] ?? '') : null,
+            'nome_unidade_responsavel' => (isset($post['responsavel_externo']) && $post['responsavel_externo'] === 'S') ? ($post['responsavel_unidade_externo'] ?? '') : null,
+            
+            'email_responsavel'     => $post['responsavel_email'] ?? '',
+            'telefone1_responsavel' => $post['responsavel_telefone1'] ?? '',
+            'telefone2_responsavel' => $post['responsavel_telefone2'] ?? '',
+            
+            // Dados do aprovador:
+            // Se o checkbox "eu_sou_o_aprovador" estiver marcado, usa os dados do usuário logado;
+            // caso contrário, utiliza os dados enviados pelo formulário.
+            'id_aprovador'         => ($post['eu_sou_o_aprovador'] === 'S') ? (isset($this->userInfo['id']) ? $this->userInfo['id'] : 0) : $post['aprovador_nome'],
+            'id_unidade_aprovador' => ($post['eu_sou_o_aprovador'] === 'S') ? (isset($this->userInfo['id_unidade']) ? $this->userInfo['id_unidade'] : 0) : $post['aprovador_unidade'],
+            'email_aprovador'      => $post['aprovador_email'] ?? '',
+            'telefone1_aprovador'  => $post['aprovador_telefone1'] ?? '',
+            'telefone2_aprovador'  => $post['aprovador_telefone2'] ?? '',
+            
+            'nome'                     => $post['titulo_evento'] ?? '',
+            'quantidade_participantes' => $post['quantidade_participantes'] ?? 0,
             'assinado_solicitante'     => 0,
             'assinado_componente_org'  => 0,
-            'observacoes'              => ''
+            'observacoes'              => $post['observacoes'] ?? ''
         ];
+
+        echo "<pre>"; dd(print_r($eventoData));
 
         // Inicia uma transação para garantir a integridade dos dados
         $db = \Config\Database::connect();
