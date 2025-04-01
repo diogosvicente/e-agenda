@@ -237,6 +237,7 @@ $(document).ready(function () {
     
         $("#id_solicitante").val(loggedUser.id_usuario);
         $("#solicitante_nome").val(loggedUser.nome);
+        $("#id_unidade_solicitante").val(loggedUser.id_unidade);
         $("#solicitante_unidade").val(loggedUser.id_unidade);
     
         if(checkbox.is(":checked")){

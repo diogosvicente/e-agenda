@@ -78,131 +78,85 @@ class SchedulingController extends BaseController
 
     public function save()
     {
-        // Recupera os dados do formulário via POST
         $post = $this->request->getPost();
 
-        echo "<pre>"; dd(print_r($post));
+        $espacos     = $post['espaco'] ?? [];
+        $datas       = $post['data_inicio'] ?? [];
+        $horasInicio = $post['hora_inicio'] ?? [];
+        $horasFim    = $post['hora_fim'] ?? [];
 
-        // Processa os arrays de espaços e horários
-        $espacos     = $post['espaco']       ?? [];
-        $datas       = $post['data_inicio']  ?? [];
-        $horasInicio = $post['hora_inicio']  ?? [];
-        $horasFim    = $post['hora_fim']     ?? [];
-
-        // Verifica conflitos para cada espaço/hora
-        foreach ($espacos as $index => $id_espaco) {
-            $data       = $datas[$index]       ?? '';
-            $horaInicio = $horasInicio[$index] ?? '';
-            $horaFim    = $horasFim[$index]    ?? '';
-        
-            // Combina data e hora para formar um datetime (para a consulta)
-            $data_hora_inicio = date("Y-m-d H:i:s", strtotime("$data $horaInicio"));
-            $data_hora_fim    = date("Y-m-d H:i:s", strtotime("$data $horaFim"));
-        
-            // Obtém o nome do espaço através do model; se não encontrar, usa o próprio id
-            $espacoInfo = $this->espacoModel->find($id_espaco);
-            $nomeEspaco = ($espacoInfo && isset($espacoInfo->nome)) ? $espacoInfo->nome : $id_espaco;
-        
-            // Formata as datas para o padrão dd/mm/aaaa HH:MM
-            $data_hora_inicio_format = date("d/m/Y H:i", strtotime("$data $horaInicio"));
-            $data_hora_fim_format    = date("d/m/Y H:i", strtotime("$data $horaFim"));
-        
-            // Consulta para verificar se já existe um evento para o mesmo espaço que se sobreponha ao novo
-            $conflictCount = $this->eventoEspacoModel
-                ->where('id_espaco', $id_espaco)
-                ->where('data_hora_inicio <', $data_hora_fim)
-                ->where('data_hora_fim >', $data_hora_inicio)
-                ->countAllResults();
-        
-            if ($conflictCount > 0) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => "Já existe um evento agendado para o espaço {$nomeEspaco} no período de {$data_hora_inicio_format} a {$data_hora_fim_format}."
-                ]);
-            }
-        }
-
-        // Monta os dados gerais do evento para a tabela "eventos"
         $eventoData = [
-            // Dados do solicitante
-            'id_solicitante'         => isset($this->userInfo['id']) ? $this->userInfo['id'] : 0,
-            'id_unidade_solicitante' => isset($this->userInfo['id_unidade']) ? $this->userInfo['id_unidade'] : 0,
-            
-            // Dados do responsável:
-            // Se interno, utiliza os dados do usuário logado e deixa os campos de responsável externo nulos;
-            // se externo, utiliza os campos do formulário.
-            'id_responsavel'           => (isset($post['eu_sou_o_responsavel']) && $post['eu_sou_o_responsavel'] === 'S') ? (isset($this->userInfo['id']) ? $this->userInfo['id'] : 0) : null,
-            'id_unidade_responsavel'   => (isset($post['eu_sou_o_responsavel']) && $post['eu_sou_o_responsavel'] === 'S') ? (isset($this->userInfo['id_unidade']) ? $this->userInfo['id_unidade'] : 0) : null,
-            'nome_responsavel'         => (isset($post['responsavel_externo']) && $post['responsavel_externo'] === 'S') ? ($post['responsavel_nome_externo'] ?? '') : null,
-            'nome_unidade_responsavel' => (isset($post['responsavel_externo']) && $post['responsavel_externo'] === 'S') ? ($post['responsavel_unidade_externo'] ?? '') : null,
-            
-            'email_responsavel'     => $post['responsavel_email'] ?? '',
-            'telefone1_responsavel' => $post['responsavel_telefone1'] ?? '',
-            'telefone2_responsavel' => $post['responsavel_telefone2'] ?? '',
-            
-            // Dados do aprovador:
-            // Se o checkbox "eu_sou_o_aprovador" estiver marcado, usa os dados do usuário logado;
-            // caso contrário, utiliza os dados enviados pelo formulário.
-            'id_aprovador'         => ($post['eu_sou_o_aprovador'] === 'S') ? (isset($this->userInfo['id']) ? $this->userInfo['id'] : 0) : $post['aprovador_nome'],
-            'id_unidade_aprovador' => ($post['eu_sou_o_aprovador'] === 'S') ? (isset($this->userInfo['id_unidade']) ? $this->userInfo['id_unidade'] : 0) : $post['aprovador_unidade'],
-            'email_aprovador'      => $post['aprovador_email'] ?? '',
-            'telefone1_aprovador'  => $post['aprovador_telefone1'] ?? '',
-            'telefone2_aprovador'  => $post['aprovador_telefone2'] ?? '',
-            
-            'nome'                     => $post['titulo_evento'] ?? '',
-            'quantidade_participantes' => $post['quantidade_participantes'] ?? 0,
-            'assinado_solicitante'     => 0,
-            'assinado_componente_org'  => 0,
-            'observacoes'              => $post['observacoes'] ?? ''
+            'id_solicitante'            => $post['id_solicitante'],
+            'id_unidade_solicitante'    => $post['id_unidade_solicitante'],
+            'nome'                      => $post['titulo_evento'],
+            'quantidade_participantes'  => $post['quantidade_participantes'] ?? 0,
+            'observacoes'               => $post['observacoes'] ?? '',
+            'assinado_solicitante'      => 0,
+            'assinado_componente_org'   => 0,
+            'email_responsavel'         => $post['responsavel_email'] ?? '',
+            'telefone1_responsavel'     => $post['responsavel_telefone1'] ?? '',
+            'telefone2_responsavel'     => $post['responsavel_telefone2'] ?? '',
+            'email_aprovador'           => $post['aprovador_email'] ?? '',
+            'telefone1_aprovador'       => $post['aprovador_telefone1'] ?? '',
+            'telefone2_aprovador'       => $post['aprovador_telefone2'] ?? '',
+            'id_responsavel'            => $post['responsavel_nome_id'] ?? 0,
+            'id_unidade_responsavel'    => $post['responsavel_unidade_id'] ?? 0,
+            'nome_responsavel'          => $post['responsavel_nome_externo'] ?? '',
+            'nome_unidade_responsavel'  => $post['responsavel_unidade_externo'] ?? '',
+            'id_aprovador'              => $post['aprovador_nome_id'] ?? '',
+            'id_unidade_aprovador'      => $post['aprovador_unidade_id'] ?? ''
         ];
 
-        echo "<pre>"; dd(print_r($eventoData));
+        // echo "<pre>"; dd(print_r($eventoData));
 
-        // Inicia uma transação para garantir a integridade dos dados
-        $db = \Config\Database::connect();
-        $db->transStart();
 
-        // Insere os dados gerais do evento
         $eventoId = $this->eventoModel->insert($eventoData);
         if (!$eventoId) {
-            $db->transRollback();
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Erro ao salvar os dados do evento.'
+                'message' => 'Erro ao salvar evento.'
             ]);
         }
 
-        // Insere os dados de cada espaço agendado
-        foreach ($espacos as $index => $id_espaco) {
-            $data       = $datas[$index]       ?? '';
-            $horaInicio = $horasInicio[$index] ?? '';
-            $horaFim    = $horasFim[$index]    ?? '';
-
-            $data_hora_inicio = date("Y-m-d H:i:s", strtotime("$data $horaInicio"));
-            $data_hora_fim    = date("Y-m-d H:i:s", strtotime("$data $horaFim"));
-
-            $espacoData = [
+        // Espaços + horários
+        foreach ($espacos as $index => $idEspaco) {
+            if (!isset($datas[$index], $horasInicio[$index], $horasFim[$index])) continue;
+        
+            $data_hora_inicio = date("Y-m-d H:i:s", strtotime($datas[$index] . ' ' . $horasInicio[$index]));
+            $data_hora_fim    = date("Y-m-d H:i:s", strtotime($datas[$index] . ' ' . $horasFim[$index]));
+        
+            log_message('debug', "Insert espaco {$idEspaco} - $data_hora_inicio até $data_hora_fim");
+        
+            $result = $this->eventoEspacoModel->insert([
                 'id_evento'        => $eventoId,
-                'id_espaco'        => $id_espaco,
+                'id_espaco'        => $idEspaco,
                 'data_hora_inicio' => $data_hora_inicio,
-                'data_hora_fim'    => $data_hora_fim,
-            ];
-            $this->eventoEspacoModel->insert($espacoData);
+                'data_hora_fim'    => $data_hora_fim
+            ]);
+        
+            if (!$result) {
+                log_message('error', 'Erro ao inserir em evento_espaco_data_hora: ' . json_encode($this->eventoEspacoModel->errors()));
+            }
         }
+        
 
-        $db->transComplete();
+        // Recursos
+        $recursos = $post['recursos'] ?? [];
+        $quantidades = $post['quantidade_recurso'] ?? [];
 
-        if ($db->transStatus() === false) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Erro ao salvar os dados. Tente novamente.'
+        foreach ($recursos as $idRecurso) {
+            $this->eventoRecursosModel->insert([
+                'id_evento'  => $eventoId,
+                'id_recurso' => $idRecurso,
+                'quantidade' => $quantidades[$idRecurso] ?? 1
             ]);
         }
 
         return $this->response->setJSON([
-            'success'   => true,
+            'success' => true,
             'id_evento' => $eventoId,
-            'message'   => 'Evento cadastrado com sucesso!'
+            'message' => 'Evento cadastrado com sucesso!'
         ]);
     }
+
 }
