@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 31/03/2025 às 04:05
+-- Tempo de geração: 02/04/2025 às 01:24
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -84,26 +84,6 @@ CREATE TABLE `espaco_fotos` (
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `evento`
---
-
-CREATE TABLE `evento` (
-  `id` int(11) NOT NULL,
-  `id_solicitante` int(11) NOT NULL,
-  `nome_solicitante` varchar(255) NOT NULL,
-  `id_responsavel` int(11) NOT NULL,
-  `telefone_responsavel` varchar(20) DEFAULT NULL,
-  `email_responsavel` varchar(255) DEFAULT NULL,
-  `nome` varchar(255) NOT NULL,
-  `quantidade_participantes` int(11) NOT NULL,
-  `assinado_solicitante` tinyint(1) NOT NULL DEFAULT 0,
-  `assinado_componente_org` tinyint(1) NOT NULL DEFAULT 0,
-  `observacoes` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `eventos`
 --
 
@@ -130,6 +110,16 @@ CREATE TABLE `eventos` (
   `observacoes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `eventos`
+--
+
+INSERT INTO `eventos` (`id`, `id_solicitante`, `id_unidade_solicitante`, `id_responsavel`, `nome_responsavel`, `id_unidade_responsavel`, `nome_unidade_responsavel`, `email_responsavel`, `telefone1_responsavel`, `telefone2_responsavel`, `id_aprovador`, `id_unidade_aprovador`, `email_aprovador`, `telefone1_aprovador`, `telefone2_aprovador`, `nome`, `quantidade_participantes`, `assinado_solicitante`, `assinado_componente_org`, `observacoes`) VALUES
+(17, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 46, 20, 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 'Evento Teste 1', 0, 0, 0, ''),
+(32, 46, 20, 46, '', 20, '', 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 46, 20, 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 'Evento Teste 1', 0, 0, 0, ''),
+(33, 46, 20, 46, '', 20, '', 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 46, 20, 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 'Evento Teste 1', 0, 0, 0, ''),
+(34, 46, 20, 46, '', 20, '', 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 46, 20, 'diogo.nascimento@uerj.br', '(21) 98710-5175', '(21) 98935-0698', 'Evento Teste 1', 0, 0, 0, '');
+
 -- --------------------------------------------------------
 
 --
@@ -144,6 +134,14 @@ CREATE TABLE `evento_espaco_data_hora` (
   `data_hora_fim` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `evento_espaco_data_hora`
+--
+
+INSERT INTO `evento_espaco_data_hora` (`id`, `id_evento`, `id_espaco`, `data_hora_inicio`, `data_hora_fim`) VALUES
+(27, 33, 7, '2025-03-24 10:30:00', '2025-03-24 16:30:00'),
+(28, 34, 1, '2025-04-01 10:30:00', '2025-04-01 16:30:00');
+
 -- --------------------------------------------------------
 
 --
@@ -152,7 +150,9 @@ CREATE TABLE `evento_espaco_data_hora` (
 
 CREATE TABLE `evento_recursos` (
   `id` int(11) NOT NULL,
-  `id_espaco_recurso` int(11) NOT NULL
+  `id_evento` int(11) NOT NULL,
+  `id_recurso` int(11) NOT NULL,
+  `quantidade` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -164,8 +164,9 @@ CREATE TABLE `evento_recursos` (
 CREATE TABLE `evento_status` (
   `id` int(11) NOT NULL,
   `id_evento` int(11) NOT NULL,
-  `nome` varchar(255) NOT NULL,
-  `data` datetime NOT NULL
+  `status` varchar(50) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -245,12 +246,6 @@ ALTER TABLE `espaco_fotos`
   ADD KEY `id_espaco` (`id_espaco`);
 
 --
--- Índices de tabela `evento`
---
-ALTER TABLE `evento`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Índices de tabela `eventos`
 --
 ALTER TABLE `eventos`
@@ -269,7 +264,8 @@ ALTER TABLE `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_recursos`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_espaco_recurso` (`id_espaco_recurso`);
+  ADD KEY `fk_evento` (`id_evento`),
+  ADD KEY `fk_recurso` (`id_recurso`);
 
 --
 -- Índices de tabela `evento_status`
@@ -316,22 +312,16 @@ ALTER TABLE `espaco_fotos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de tabela `evento`
---
-ALTER TABLE `evento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
 -- AUTO_INCREMENT de tabela `eventos`
 --
 ALTER TABLE `eventos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de tabela `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de tabela `evento_recursos`
@@ -377,20 +367,20 @@ ALTER TABLE `espaco_fotos`
 -- Restrições para tabelas `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
-  ADD CONSTRAINT `evento_espaco_data_hora_ibfk_1` FOREIGN KEY (`id_evento`) REFERENCES `evento` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `evento_espaco_data_hora_ibfk_2` FOREIGN KEY (`id_espaco`) REFERENCES `espacos` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `evento_recursos`
 --
 ALTER TABLE `evento_recursos`
-  ADD CONSTRAINT `evento_recursos_ibfk_1` FOREIGN KEY (`id_espaco_recurso`) REFERENCES `recursos` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_evento` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_recurso` FOREIGN KEY (`id_recurso`) REFERENCES `recursos` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `evento_status`
 --
 ALTER TABLE `evento_status`
-  ADD CONSTRAINT `evento_status_ibfk_1` FOREIGN KEY (`id_evento`) REFERENCES `evento` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `evento_status_ibfk_1` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `predio`
