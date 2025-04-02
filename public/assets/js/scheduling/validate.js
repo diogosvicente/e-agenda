@@ -285,6 +285,7 @@ function validateEvento() {
     });
 }
 
+
 /**
  * Faz a validação completa dos campos do formulário.
  */
@@ -395,17 +396,33 @@ function dataValidation() {
         $('#aprovador_unidade').addClass("is-invalid");
         $('#divError-aprovador_unidade').html("O campo UNIDADE do aprovador é obrigatório.").show();
     }
-    
-    // Validação dinâmica para campos em array (Espaços e horários)
-    $("select[name='espaco[]'], input[name='data_inicio[]'], input[name='hora_inicio[]'], input[name='hora_fim[]']").each(function (index) {
-        let newId = $(this).attr('name').replace(/\[|\]/g, "_") + "_" + (index + 1);
-        $(this).attr('id', newId);
-        if (validarCampo($(this))) {
+
+    // Validação dos campos de espaços (novo formato)
+    $(".espaco-entry").each(function () {
+        let $entry = $(this);
+        // Valida o select de espaço
+        let $select = $entry.find("select.espaco-select");
+        if ($.trim($select.val()) === "") {
             totalErros++;
             totalEspacosMissing++;
+            $select.addClass("is-invalid");
+            // Exibe mensagem de erro no primeiro feedback do registro
+            $entry.find("div.invalid-feedback").first().html("Selecione um espaço para o evento.").show();
+        } else {
+            $select.removeClass("is-invalid");
+            $entry.find("div.invalid-feedback").first().hide();
         }
+        
+        // Valida os inputs de data/hora dentro deste espaço
+        $entry.find(".data-hora-entry input").each(function () {
+            if (validarCampo($(this))) {
+                totalErros++;
+                totalEspacosMissing++;
+            }
+        });
     });
     
+    // Verifica se pelo menos um espaço foi selecionado
     let espacoSelecionado = false;
     $(".espaco-select").each(function () {
         if ($(this).val() !== "") {
@@ -413,16 +430,17 @@ function dataValidation() {
         }
     });
     if (!espacoSelecionado) {
-    totalErros++;
-    // Adiciona classe de erro ao container de espaços
-    $("#espacos-container").addClass("is-invalid");
-    // Se não existir uma div de erro, cria uma; caso contrário, atualiza o conteúdo
-    if ($("#divError-espacos-container").length === 0) {
-        $("#espacos-container").append('<div id="divError-espacos-container" class="invalid-feedback">Selecione pelo menos um espaço para o evento.</div>');
+        totalErros++;
+        $("#espacos-container").addClass("is-invalid");
+        if ($("#divError-espacos-container").length === 0) {
+            $("#espacos-container").append('<div id="divError-espacos-container" class="invalid-feedback">Selecione pelo menos um espaço para o evento.</div>');
+        } else {
+            $("#divError-espacos-container").html("Selecione pelo menos um espaço para o evento.").show();
+        }
     } else {
-        $("#divError-espacos-container").html("Selecione pelo menos um espaço para o evento.").show();
+        $("#espacos-container").removeClass("is-invalid");
+        $("#divError-espacos-container").hide();
     }
-}
     
     if (!$("#flg_confirmacao_envio").is(":checked")) {
         totalErros++;

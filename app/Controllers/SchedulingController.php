@@ -123,12 +123,12 @@ class SchedulingController extends BaseController
         }
 
         // Processa os dados dos espaços e horários
-        // Espera-se que o formulário envie os espaços na estrutura:
+        // O formulário envia os espaços na estrutura:
         // cada espaço pode ter dados enviados tanto diretamente (chaves "data_inicio", etc.)
         // quanto dentro de um subarray "datas". Mesclamos ambos.
         $espacos = $post['espacos'] ?? [];
         $espacoDataArray = array_reduce($espacos, function($carry, $espaco) use ($eventoId) {
-            // Se existir dados no nível superior, cria um registro padrão
+            // Se houver dados no nível superior, cria um registro padrão
             $defaultData = [];
             if (isset($espaco['data_inicio'], $espaco['hora_inicio'], $espaco['hora_fim'])) {
                 $defaultData[] = [
@@ -164,6 +164,20 @@ class SchedulingController extends BaseController
             ]);
         }
 
+        // Verifica conflitos para cada registro de data/hora antes de inserir
+        foreach ($espacoDataArray as $registro) {
+            if ($this->eventoEspacoDataHoraModel->isConflict($registro['id_espaco'], $registro['data_hora_inicio'], $registro['data_hora_fim'])) {
+                $db->transRollback();
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => "Já existe um evento agendado para o espaço {$registro['id_espaco']} no período de " .
+                                date("d/m/Y H:i", strtotime($registro['data_hora_inicio'])) . " a " .
+                                date("d/m/Y H:i", strtotime($registro['data_hora_fim']))
+                ]);
+            }
+        }
+
+        // Insere os registros de espaços e horários em lote
         $result = $this->eventoEspacoDataHoraModel->insertBatch($espacoDataArray);
         if (!$result) {
             log_message('error', 'Erro ao inserir em evento_espaco_data_hora: ' .
@@ -192,7 +206,7 @@ class SchedulingController extends BaseController
             }
         }
 
-        // Insere o status do evento
+        // Insere o status do evento como "assinatura pendente"
         $statusData = [
             'id_evento' => $eventoId,
             'status'    => 'assinatura pendente'

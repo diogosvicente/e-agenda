@@ -121,7 +121,7 @@ $(document).ready(function () {
         $(this).closest(".espaco-entry").remove();
         atualizarIndicesEspacos();
         atualizarRecursos();
-    });
+    }); 
 
     // Monitorar seleção de espaços e carregar recursos
     $(document).on("change", ".espaco-select", function () {
