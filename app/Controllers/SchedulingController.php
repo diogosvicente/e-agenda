@@ -85,13 +85,7 @@ class SchedulingController extends BaseController
     {
         $post = $this->request->getPost();
 
-        // Processa os arrays de espaços e horários
-        $espacos     = $post['espaco']       ?? [];
-        $datas       = $post['data_inicio']  ?? [];
-        $horasInicio = $post['hora_inicio']  ?? [];
-        $horasFim    = $post['hora_fim']     ?? [];
-
-        // Monta os dados gerais do evento a partir dos inputs do POST
+        // Dados gerais do evento
         $eventoData = [
             'id_solicitante'           => $post['id_solicitante'],
             'id_unidade_solicitante'   => $post['id_unidade_solicitante'],
@@ -114,7 +108,6 @@ class SchedulingController extends BaseController
             'id_unidade_aprovador'     => $post['aprovador_unidade_id'] ?? 0
         ];
 
-        // Inicia a transação
         $db = \Config\Database::connect();
         $db->transStart();
 
@@ -129,98 +122,41 @@ class SchedulingController extends BaseController
             ]);
         }
 
-        // Tratamento dos espaços e horários
-        // Se houver somente um espaço selecionado e múltiplos horários, aplica todos a esse espaço.
-        if (count($espacos) === 1 && count($datas) > 1) {
-            $idEspaco = $espacos[0];
-            for ($i = 0; $i < count($datas); $i++) {
-                if (!isset($datas[$i], $horasInicio[$i], $horasFim[$i])) {
-                    continue;
-                }
-                $data_hora_inicio = date("Y-m-d H:i:s", strtotime($datas[$i] . ' ' . $horasInicio[$i]));
-                $data_hora_fim    = date("Y-m-d H:i:s", strtotime($datas[$i] . ' ' . $horasFim[$i]));
-
-                // Verifica conflito para esse espaço no horário
-                $conflictCount = $this->eventoEspacoDataHoraModel
-                    ->where('id_espaco', $idEspaco)
-                    ->where('data_hora_inicio <', $data_hora_fim)
-                    ->where('data_hora_fim >', $data_hora_inicio)
-                    ->countAllResults();
-                if ($conflictCount > 0) {
-                    $db->transRollback();
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => "Já existe um evento agendado para o espaço {$idEspaco} no período de " .
-                                    date("d/m/Y H:i", strtotime($datas[$i] . ' ' . $horasInicio[$i])) .
-                                    " a " .
-                                    date("d/m/Y H:i", strtotime($datas[$i] . ' ' . $horasFim[$i]))
-                    ]);
-                }
-
-                $espacoData = [
-                    'id_evento'        => $eventoId,
-                    'id_espaco'        => $idEspaco,
-                    'data_hora_inicio' => $data_hora_inicio,
-                    'data_hora_fim'    => $data_hora_fim
+        // Processa os dados dos espaços e horários
+        // Espera-se que o formulário envie os espaços na estrutura:
+        // cada espaço pode ter dados enviados tanto diretamente (chaves "data_inicio", etc.)
+        // quanto dentro de um subarray "datas". Mesclamos ambos.
+        $espacos = $post['espacos'] ?? [];
+        $espacoDataArray = array_reduce($espacos, function($carry, $espaco) use ($eventoId) {
+            // Se existir dados no nível superior, cria um registro padrão
+            $defaultData = [];
+            if (isset($espaco['data_inicio'], $espaco['hora_inicio'], $espaco['hora_fim'])) {
+                $defaultData[] = [
+                    'data_inicio' => $espaco['data_inicio'],
+                    'hora_inicio' => $espaco['hora_inicio'],
+                    'hora_fim'    => $espaco['hora_fim']
                 ];
-                $result = $this->eventoEspacoDataHoraModel->insert($espacoData);
-                if (!$result) {
-                    log_message('error', 'Erro ao inserir em evento_espaco_data_hora: ' .
-                        json_encode($this->eventoEspacoDataHoraModel->errors()));
-                    $db->transRollback();
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Erro ao salvar os espaços do evento.'
-                    ]);
-                }
             }
-        }
-        // Se os arrays tiverem a mesma quantidade, associa cada índice individualmente
-        else if (count($espacos) === count($datas)) {
-            foreach ($espacos as $index => $idEspaco) {
-                if (!isset($datas[$index], $horasInicio[$index], $horasFim[$index])) {
-                    continue;
-                }
-                $data_hora_inicio = date("Y-m-d H:i:s", strtotime($datas[$index] . ' ' . $horasInicio[$index]));
-                $data_hora_fim    = date("Y-m-d H:i:s", strtotime($datas[$index] . ' ' . $horasFim[$index]));
-
-                // Verifica conflito para esse espaço no horário
-                $conflictCount = $this->eventoEspacoDataHoraModel
-                    ->where('id_espaco', $idEspaco)
-                    ->where('data_hora_inicio <', $data_hora_fim)
-                    ->where('data_hora_fim >', $data_hora_inicio)
-                    ->countAllResults();
-                if ($conflictCount > 0) {
-                    $db->transRollback();
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => "Já existe um evento agendado para o espaço {$idEspaco} no período de " .
-                                    date("d/m/Y H:i", strtotime($datas[$index] . ' ' . $horasInicio[$index])) .
-                                    " a " .
-                                    date("d/m/Y H:i", strtotime($datas[$index] . ' ' . $horasFim[$index]))
-                    ]);
-                }
-
-                $espacoData = [
+            // Se existir o subarray "datas", utiliza-o
+            $nestedData = isset($espaco['datas']) && is_array($espaco['datas']) ? $espaco['datas'] : [];
+            // Mescla os dois conjuntos de dados
+            $datas = array_merge($defaultData, $nestedData);
+            if (empty($datas)) {
+                return $carry;
+            }
+            // Processa cada entrada de data/hora
+            $rows = array_map(function($data) use ($eventoId, $espaco) {
+                return [
                     'id_evento'        => $eventoId,
-                    'id_espaco'        => $idEspaco,
-                    'data_hora_inicio' => $data_hora_inicio,
-                    'data_hora_fim'    => $data_hora_fim
+                    'id_espaco'        => isset($espaco['id']) ? $espaco['id'] : null,
+                    'data_hora_inicio' => date("Y-m-d H:i:s", strtotime($data['data_inicio'] . ' ' . $data['hora_inicio'])),
+                    'data_hora_fim'    => date("Y-m-d H:i:s", strtotime($data['data_inicio'] . ' ' . $data['hora_fim']))
                 ];
-                $result = $this->eventoEspacoDataHoraModel->insert($espacoData);
-                if (!$result) {
-                    log_message('error', 'Erro ao inserir em evento_espaco_data_hora: ' .
-                        json_encode($this->eventoEspacoDataHoraModel->errors()));
-                    $db->transRollback();
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Erro ao salvar os espaços do evento.'
-                    ]);
-                }
-            }
-        }
-        // Se os arrays não se alinharem, retorna erro
-        else {
+            }, $datas);
+            return array_merge($carry, $rows);
+        }, []);
+
+        if (empty($espacoDataArray)) {
             $db->transRollback();
             return $this->response->setJSON([
                 'success' => false,
@@ -228,17 +164,23 @@ class SchedulingController extends BaseController
             ]);
         }
 
-        // Recursos
-        $recursos = $post['recursos'] ?? [];
-        $quantidades = $post['quantidade_recurso'] ?? [];
-        foreach ($recursos as $idRecurso) {
-            $resourceData = [
-                'id_evento'  => $eventoId,
-                'id_recurso' => $idRecurso,
-                'quantidade' => $quantidades[$idRecurso] ?? 1
-            ];
+        $result = $this->eventoEspacoDataHoraModel->insertBatch($espacoDataArray);
+        if (!$result) {
+            log_message('error', 'Erro ao inserir em evento_espaco_data_hora: ' .
+                json_encode($this->eventoEspacoDataHoraModel->errors()));
+            $db->transRollback();
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Erro ao salvar os espaços do evento.'
+            ]);
+        }
 
-            $result = $this->eventoRecursosModel->insert($resourceData);
+        // Processa os recursos
+        // Espera-se que o formulário envie os recursos como array de registros, onde cada registro contém:
+        // 'id_espaco', 'id_recurso' e 'quantidade'
+        $recursos = $post['recursos'] ?? [];
+        if (!empty($recursos) && is_array($recursos)) {
+            $result = $this->eventoRecursosModel->insertBatch($recursos);
             if (!$result) {
                 log_message('error', 'Erro ao inserir em evento_recursos: ' .
                     json_encode($this->eventoRecursosModel->errors()));
@@ -250,7 +192,7 @@ class SchedulingController extends BaseController
             }
         }
 
-        // Insere o status do evento como "assinatura pendente"
+        // Insere o status do evento
         $statusData = [
             'id_evento' => $eventoId,
             'status'    => 'assinatura pendente'
@@ -283,5 +225,4 @@ class SchedulingController extends BaseController
             'message'   => 'Evento cadastrado com sucesso!'
         ]);
     }
-
 }

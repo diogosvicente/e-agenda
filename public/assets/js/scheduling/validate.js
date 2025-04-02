@@ -264,8 +264,7 @@ function validateEvento() {
             if (response.success) {
                 $("#msgSucessoGeral").html(response.message).show();
                 $("#btnLimpar").show();
-                $("#formScheduling :input").prop("readonly", true);
-                $("#formScheduling select").prop("disabled", true);
+                
                 $("#btnValidateEvento, #btnCancel").prop("disabled", true);
                 $("#ext_buttons").html(`
                     <hr>
@@ -414,10 +413,16 @@ function dataValidation() {
         }
     });
     if (!espacoSelecionado) {
-        totalErros++;
-        $('#espaco').addClass("is-invalid");
-        $('#divError-espaco').html("Selecione pelo menos um espaço para o evento.").show();
+    totalErros++;
+    // Adiciona classe de erro ao container de espaços
+    $("#espacos-container").addClass("is-invalid");
+    // Se não existir uma div de erro, cria uma; caso contrário, atualiza o conteúdo
+    if ($("#divError-espacos-container").length === 0) {
+        $("#espacos-container").append('<div id="divError-espacos-container" class="invalid-feedback">Selecione pelo menos um espaço para o evento.</div>');
+    } else {
+        $("#divError-espacos-container").html("Selecione pelo menos um espaço para o evento.").show();
     }
+}
     
     if (!$("#flg_confirmacao_envio").is(":checked")) {
         totalErros++;

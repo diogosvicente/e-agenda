@@ -297,13 +297,13 @@
                     <div class="tab-pane fade" id="espacos">
                         <fieldset class="fieldset-child" id="espacos-container">
                             <legend class="fieldset-child">Espaços</legend>
-                            <div class="espaco-entry" data-espaco="1">
+                            <div class="espaco-entry" data-espaco="0">
                                 <fieldset class="fieldset-child">
                                     <legend class="fieldset-child">Espaço 1</legend>
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <label for="espaco_1" class="form-label">Espaço Disponível: *</label>
-                                            <select name="espaco[]" id="espaco_1" class="form-control espaco-select" required>
+                                            <label for="espacos_0_id" class="form-label">Espaço Disponível: *</label>
+                                            <select name="espacos[0][id]" id="espacos_0_id" class="form-control espaco-select" required>
                                                 <option value="">Selecione um espaço</option>
                                                 <?php foreach ($campus as $campusItem): ?>
                                                     <optgroup label="<?php echo esc($campusItem->nome); ?>">
@@ -311,7 +311,7 @@
                                                             <?php if (!empty($predio->espacos)): ?>
                                                                 <optgroup label="➝ <?php echo esc($predio->nome); ?>">
                                                                     <?php foreach ($predio->espacos as $espaco): ?>
-                                                                        <option selected value="<?php echo esc($espaco->id); ?>">
+                                                                        <option value="<?php echo esc($espaco->id); ?>">
                                                                             <?php echo esc($espaco->nome) . " (Capacidade: " . esc($espaco->capacidade) . ")"; ?>
                                                                         </option>
                                                                     <?php endforeach; ?>
@@ -325,29 +325,29 @@
                                                     </optgroup>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <div id="divError-espaco_1" class="invalid-feedback"></div>
-                                            <div id="divNotice-espaco_1" class="notice-feedback"></div>
+                                            <div id="divError-espacos_0_id" class="invalid-feedback"></div>
+                                            <div id="divNotice-espacos_0_id" class="notice-feedback"></div>
                                         </div>
                                     </div>
                                     <div class="datas_horarios">
                                         <div class="row mt-3 data-hora-entry">
                                             <div class="col-sm-4">
-                                                <label for="data_inicio_1" class="form-label">Data Início: *</label>
-                                                <input value="2025-04-01" type="date" name="data_inicio[]" id="data_inicio_1" class="form-control" required>
-                                                <div id="divError-data_inicio_1" class="invalid-feedback"></div>
-                                                <div id="divNotice-data_inicio_1" class="notice-feedback"></div>
+                                                <label for="espacos_0_data_inicio" class="form-label">Data Início: *</label>
+                                                <input value="2025-04-01" type="date" name="espacos[0][data_inicio]" id="espacos_0_data_inicio" class="form-control" required>
+                                                <div id="divError-espacos_0_data_inicio" class="invalid-feedback"></div>
+                                                <div id="divNotice-espacos_0_data_inicio" class="notice-feedback"></div>
                                             </div>
                                             <div class="col-sm-4">
-                                                <label for="hora_inicio_1" class="form-label">Hora de Início: *</label>
-                                                <input value="10:30" type="time" name="hora_inicio[]" id="hora_inicio_1" class="form-control" required>
-                                                <div id="divError-hora_inicio_1" class="invalid-feedback"></div>
-                                                <div id="divNotice-hora_inicio_1" class="notice-feedback"></div>
+                                                <label for="espacos_0_hora_inicio" class="form-label">Hora de Início: *</label>
+                                                <input value="10:30" type="time" name="espacos[0][hora_inicio]" id="espacos_0_hora_inicio" class="form-control" required>
+                                                <div id="divError-espacos_0_hora_inicio" class="invalid-feedback"></div>
+                                                <div id="divNotice-espacos_0_hora_inicio" class="notice-feedback"></div>
                                             </div>
                                             <div class="col-sm-3">
-                                                <label for="hora_fim_1" class="form-label">Hora de Fim: *</label>
-                                                <input value="16:30" type="time" name="hora_fim[]" id="hora_fim_1" class="form-control" required>
-                                                <div id="divError-hora_fim_1" class="invalid-feedback"></div>
-                                                <div id="divNotice-hora_fim_1" class="notice-feedback"></div>
+                                                <label for="espacos_0_hora_fim" class="form-label">Hora de Fim: *</label>
+                                                <input value="16:30" type="time" name="espacos[0][hora_fim]" id="espacos_0_hora_fim" class="form-control" required>
+                                                <div id="divError-espacos_0_hora_fim" class="invalid-feedback"></div>
+                                                <div id="divNotice-espacos_0_hora_fim" class="notice-feedback"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -358,6 +358,7 @@
                                     </div>
                                 </fieldset>
                             </div>
+
                             <div class="row mt-3">
                                 <div class="col-sm-12 text-end">
                                     <button type="button" class="btn btn-primary" id="addEspaco">+ Adicionar Novo Espaço</button>
@@ -384,7 +385,10 @@
                         <div id="recursos-lista" style="display: none;">
                             <fieldset class="fieldset-child">
                                 <legend class="fieldset-child">Recursos Disponíveis</legend>
-                                <div id="recursos-gerais"></div>
+                                <div id="recursos-gerais">
+                                    <!-- Os recursos serão gerados via AJAX com a estrutura: 
+                                        recursos[][id_espaco], recursos[][id_recurso] e recursos[][quantidade] -->
+                                </div>
                             </fieldset>
                         </div>
                     </div>
