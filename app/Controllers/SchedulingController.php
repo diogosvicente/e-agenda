@@ -41,6 +41,8 @@ class SchedulingController extends BaseController
 
         // Obtém os dados do usuário via helper (definido, por exemplo, em auth_helper.php)
         $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
+
+        helper(['email_helper']);
     }
 
     public function add()
@@ -233,10 +235,24 @@ class SchedulingController extends BaseController
             ]);
         }
 
+        // Gera um token exclusivo para o aprovador
+        $token = bin2hex(random_bytes(16));
+        // Você pode salvar esse token para validação, se necessário.
+
+        // Envia o e-mail para o aprovador com as informações do evento
+        helper('url');
+        helper('email'); // Certifique-se de carregar o helper de email (ou inclua sua função no helper)
+        $emailEnviado = enviar_email_aprovador($post['aprovador_email'], $token, $eventoData);
+
+        if (!$emailEnviado) {
+            log_message('error', 'Erro ao enviar e-mail para o aprovador.');
+            // Aqui você pode optar por retornar uma mensagem ou continuar com a confirmação do cadastro.
+        }
+
         return $this->response->setJSON([
             'success'   => true,
             'id_evento' => $eventoId,
-            'message'   => 'Evento cadastrado com sucesso!'
+            'message'   => 'Evento cadastrado com sucesso!<br>Um e-mail foi enviado para o aprovador confirmar a solicitação!'
         ]);
     }
 }

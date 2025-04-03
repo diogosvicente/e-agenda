@@ -60,19 +60,29 @@ function fillResponsavelDetails() {
  * Exibe os campos de responsável interno e esconde os de responsável externo.
  */
 function toggleResponsavelInterno() {
+    // Exibe os campos internos
     $("#grupo-responsavel-nome-interno, #grupo-responsavel-unidade-interno").show();
+    // Oculta os campos externos e limpa seus valores
     $("#grupo-responsavel-nome-externo, #grupo-responsavel-unidade-externo").hide();
+    $("#responsavel_nome_externo").val("");
+    $("#responsavel_unidade_externo").val("");
 }
 
 /**
  * Esconde os campos de responsável interno e exibe os de responsável externo.
  */
 function toggleResponsavelExterno() {
+    // Oculta os campos internos e limpa seus valores (se for select, volta para a opção padrão)
     $("#grupo-responsavel-nome-interno, #grupo-responsavel-unidade-interno").hide();
+    $("#responsavel_nome").prop("selectedIndex", 0).trigger("change");
+    $("#responsavel_unidade").prop("selectedIndex", 0).trigger("change");
+    
+    // Exibe os campos externos e limpa os seus inputs
     $("#grupo-responsavel-nome-externo, #grupo-responsavel-unidade-externo").show();
-    $("#responsavel_nome, #responsavel_unidade, #responsavel_email, #responsavel_telefone1, #responsavel_telefone2").val("");
-    // Não forçamos o readonly aqui; isso será definido no handler abaixo.
+    $("#responsavel_nome_externo").val("");
+    $("#responsavel_unidade_externo").val("");
 }
+
 
 /**
  * Se nenhum checkbox de responsável estiver marcado,
