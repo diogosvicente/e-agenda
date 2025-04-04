@@ -313,7 +313,15 @@ function dataValidation() {
         $('#titulo_evento').addClass("is-invalid");
         $('#divError-titulo_evento').html("O campo NOME do evento é obrigatório.").show();
     }
-    
+
+    // Validação do Nome do Evento
+    if ($.trim($("#quantidade_participantes").val()) === "") {
+        totalErros++;
+        totalEventoMissing++;
+        $('#quantidade_participantes').addClass("is-invalid");
+        $('#divError-quantidade_participantes').html("O campo QUANTIDADE DE PARTICIPANTES é obrigatório.").show();
+    }
+
     // Validação do Solicitante
     if ($.trim($("#solicitante_nome").val()) === "") {
         totalErros++;

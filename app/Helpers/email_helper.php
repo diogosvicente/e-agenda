@@ -60,14 +60,14 @@ if (!function_exists('enviar_email_aprovador')) {
         if (!empty($eventoInfo['horarios']) && is_array($eventoInfo['horarios'])) {
             $espacosInfo .= "<ul>";
             foreach ($eventoInfo['horarios'] as $horario) {
-                $nomeEspaco = tradeNameByID($horario['id_espaco'], 'espacos', 'nome');
+                $nomeEspaco = getNameById($horario['id_espaco'], 'espacos', 'nome');
                 if (!$nomeEspaco) {
                     $nomeEspaco = $horario['id_espaco'];
                 }
                 $espacosInfo .= "<li><strong>Espaço Solicitado:</strong> " . htmlspecialchars($nomeEspaco) .
                                 " | <strong>Data:</strong> " . date("d/m/Y", strtotime($horario['data_hora_inicio'])) .
                                 " | <strong>Horário:</strong> " . date("H:i", strtotime($horario['data_hora_inicio'])) .
-                                " a " . date("H:i", strtotime($horario['data_hora_fim'])) . "</li>";
+                                " as " . date("H:i", strtotime($horario['data_hora_fim'])) . "</li>";
             }
             $espacosInfo .= "</ul>";
         } else {
@@ -79,7 +79,7 @@ if (!function_exists('enviar_email_aprovador')) {
         if (!empty($eventoInfo['recursos']) && is_array($eventoInfo['recursos'])) {
             $recursosInfo .= "<ul>";
             foreach ($eventoInfo['recursos'] as $recurso) {
-                $nomeRecurso = tradeNameByID($recurso['id_recurso'], 'recursos', 'nome');
+                $nomeRecurso = getNameById($recurso['id_recurso'], 'recursos', 'nome');
                 if (!$nomeRecurso) {
                     $nomeRecurso = $recurso['id_recurso'];
                 }
@@ -124,11 +124,42 @@ if (!function_exists('enviar_email_aprovador')) {
             <p><a href='" . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . "' style='color: #0056b3; text-decoration: none; font-weight: bold;'>Clique aqui para acessar a solicitação</a></p>
             
             <br>
-            <p>Atenciosamente,<br>
-               [Nome da Instituição/Setor Responsável]<br>
-               [E-mail de Contato]<br>
-               [Telefone de Contato]
-            </p>
+            <p>Atenciosamente,</p>
+            <br>
+
+            <!-- Assinatura -->
+            <table table-layout='auto' height='102' border='0' cellspacing='0' cellpadding='0' style='border-collapse: collapse;'>
+                <tbody>
+                    <tr>
+                        <td width='87' rowspan='2'>
+                            <a href='https://www.uerj.br/' target='_blank'>
+                                <img alt='Uerj' width='87' height='98' style='text-decoration:none; outline:none' id='img_uerj' border='0' src='" . base_url("public/assets/images/Uerj_email_h98.png") . "'/>
+                            </a>
+                        </td>
+                        <td width='20' rowspan='2'>&nbsp;</td>
+                        <td width='3' rowspan='2' bgcolor='#AD841F'>&nbsp;</td>
+                        <td width='12' rowspan='2'>&nbsp;</td>
+                        <td width='auto' height='70' valign='bottom' style='font-family:Trebuchet MS,Helvetica,sans-serif;'>
+                            <span style='font-size:16px; color:#000000; font-weight: 700; line-height: 1'>
+                                <a href='https://www.prefeitura.uerj.br/' target='_blank' style='text-decoration: none; color: #000000;'>
+                                    Prefeitura dos Campi
+                                </a>
+                            </span><br />
+                            <em><span style='font-size:13px; color:#000000; font-weight: 600; line-height: 1'>e-Prefeitura</span></em><br />
+                            <span style='font-size:14px; color:#000000; font-weight: 300; line-height: 1'>Prefeitura Digital</span><br />
+                            <span style='font-size:14px; color:#000000; font-weight: 700; line-height: 1.5'>Bloco F - Sala T146</span>
+                        </td>
+                    </tr>
+                    <tr style='border-top: 2px solid #0072CE;'>
+                        <td height='15' align='left' valign='top' style='font-family:Trebuchet MS,Helvetica,sans-serif; color: #000000; font-size:14px; font-weight: 300'>
+                            <span style='font-weight: 900'>Tel: </span>(21) 2334-0257<br />
+                            <span style='font-weight: 900'>E-mail:&nbsp;</span>
+                            <a style='text-decoration: none; color: #0072CE' href='mailto:prefei@uerj.br'>prefei@uerj.br</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
         </body>
         </html>
         ";
