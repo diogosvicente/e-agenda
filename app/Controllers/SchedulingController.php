@@ -93,6 +93,7 @@ class SchedulingController extends BaseController
         $eventoData = [
             'id_solicitante'           => $post['id_solicitante'],
             'id_unidade_solicitante'   => $post['id_unidade_solicitante'],
+            'email_solicitante'        => $post['email_solicitante'],
             'nome'                     => $post['titulo_evento'],
             'quantidade_participantes' => $post['quantidade_participantes'] ?? 0,
             'observacoes'              => $post['observacoes'] ?? '',
@@ -256,7 +257,7 @@ class SchedulingController extends BaseController
         // Envia o e-mail para o aprovador com as informações do evento
         helper('url');
         helper('email'); // Certifique-se de carregar o helper de email (ou inclua sua função no helper)
-        $emailEnviado = enviar_email_aprovador($post['aprovador_email'], $token, $eventoInfo);
+        $emailEnviado = enviar_email_aprovador($token, $eventoInfo);
 
         if (!$emailEnviado) {
             log_message('error', 'Erro ao enviar e-mail para o aprovador.');

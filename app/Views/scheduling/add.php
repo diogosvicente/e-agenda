@@ -85,6 +85,7 @@
                                 <!-- Nome do Solicitante (apenas leitura, vindo do usuário logado) -->
                                 <div class="col-sm-6">
                                     <input type="hidden" name="id_solicitante" id="id_solicitante" readonly />
+                                    <input type="hidden" name="email_solicitante" id="email_solicitante" readonly />
                                     <label for="solicitante_nome" class="form-label">Nome: *</label>
                                     <input type="text" name="solicitante_nome" id="solicitante_nome" class="form-control" autocomplete="off" required="required" 
                                         value="<?php echo (isset($registro->solicitante_nome)) ? $registro->solicitante_nome : '' ?>" readonly />

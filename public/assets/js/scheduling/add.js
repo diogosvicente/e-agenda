@@ -258,6 +258,7 @@ $(document).ready(function () {
         let select = $("#responsavel_nome");
     
         $("#id_solicitante").val(loggedUser.id_usuario);
+        $("#email_solicitante").val(loggedUser.email);
         $("#solicitante_nome").val(loggedUser.nome);
         $("#id_unidade_solicitante").val(loggedUser.id_unidade);
         $("#solicitante_unidade").val(loggedUser.id_unidade);

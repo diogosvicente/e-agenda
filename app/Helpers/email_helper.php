@@ -16,16 +16,28 @@ if (!function_exists('enviar_email_aprovador')) {
      *
      * @return bool True se o e-mail for enviado com sucesso, false caso contrário.
      */
-    function enviar_email_aprovador($email, $token, $eventoInfo)
+    function enviar_email_aprovador($token, $eventoInfo)
     {
-        // Para testes: exibe o array completo de dados do evento
-        // echo "<pre>";
-        // dd(print_r($eventoInfo, true));
-        
         $emailService = \Config\Services::email(true);
 
+        // Monta um array de destinatários
+        $destinatarios = [];
+        if (!empty($eventoInfo['email_solicitante'])) {
+            $destinatarios[] = $eventoInfo['email_solicitante'];
+        }
+        if (!empty($eventoInfo['email_responsavel'])) {
+            $destinatarios[] = $eventoInfo['email_responsavel'];
+        }
+        if (!empty($eventoInfo['email_aprovador'])) {
+            $destinatarios[] = $eventoInfo['email_aprovador'];
+        }
+        // Certifica-se de que temos pelo menos um e-mail
+        if (empty($destinatarios)) {
+            return false;
+        }
+
         $emailService->setFrom('eprefeitura.uerj@gmail.com', 'e-Prefeitura');
-        $emailService->setTo($email);
+        $emailService->setTo($destinatarios);
         $emailService->setSubject('e-Prefeitura - Confirmação de Solicitação de Agendamento');
 
         // Gera o link exclusivo para o aprovador (ajuste a rota conforme necessário)
@@ -165,8 +177,8 @@ if (!function_exists('enviar_email_aprovador')) {
         ";
 
         // Para testes, exibe o corpo do e-mail e interrompe a execução.
-        echo "<pre>";
-        dd(print_r($message));
+        // echo "<pre>";
+        // dd(print_r($destinatarios));
 
         $emailService->setMessage($message);
         $emailService->setMailType('html');
