@@ -47,11 +47,17 @@
                     -->
                     <div class="tab-pane fade show active" id="evento">
                         <div class="row mb-3">
-                            <div class="col-sm-12">
+                            <div class="col-sm-9">
                                 <label for="titulo_evento" class="form-label">Nome da Atividade / Evento: *</label>
                                 <input value="Evento Teste 1" type="text" name="titulo_evento" id="titulo_evento" label="titulo_evento:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->titulo_evento)) ? $registro->titulo_evento : '' ?>" />
                                 <div id="divError-titulo_evento" class="invalid-feedback"></div>
                                 <div id="divNotice-titulo_evento" class="notice-feedback"></div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label for="quantidade_participantes" class="form-label">Quantidade de Participantes: *</label>
+                                <input value="42" type="text" name="quantidade_participantes" id="quantidade_participantes" label="quantidade_participantes:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->quantidade_participantes)) ? $registro->quantidade_participantes : '' ?>" />
+                                <div id="divError-quantidade_participantes" class="invalid-feedback"></div>
+                                <div id="divNotice-quantidade_participantes" class="notice-feedback"></div>
                             </div>
                         </div>
                     </div>
@@ -329,7 +335,7 @@
                                         <div class="row mt-3 data-hora-entry">
                                             <div class="col-sm-4">
                                                 <label for="espacos_0_data_inicio" class="form-label">Data Início: *</label>
-                                                <input value="2025-04-01" type="date" name="espacos[0][data_inicio]" id="espacos_0_data_inicio" class="form-control" required>
+                                                <input value="2025-04-04" type="date" name="espacos[0][data_inicio]" id="espacos_0_data_inicio" class="form-control" required>
                                                 <div id="divError-espacos_0_data_inicio" class="invalid-feedback"></div>
                                                 <div id="divNotice-espacos_0_data_inicio" class="notice-feedback"></div>
                                             </div>

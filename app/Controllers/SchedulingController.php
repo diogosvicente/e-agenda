@@ -87,6 +87,8 @@ class SchedulingController extends BaseController
     {
         $post = $this->request->getPost();
 
+        // echo "<pre>"; dd(print_r($post));
+
         // Dados gerais do evento
         $eventoData = [
             'id_solicitante'           => $post['id_solicitante'],
@@ -167,7 +169,7 @@ class SchedulingController extends BaseController
         }
 
         // Verifica conflitos para cada registro de data/hora antes de inserir
-        foreach ($espacoDataArray as $registro) {
+        /*foreach ($espacoDataArray as $registro) {
             if ($this->eventoEspacoDataHoraModel->isConflict($registro['id_espaco'], $registro['data_hora_inicio'], $registro['data_hora_fim'])) {
                 $db->transRollback();
                 return $this->response->setJSON([
@@ -177,7 +179,7 @@ class SchedulingController extends BaseController
                                 date("d/m/Y H:i", strtotime($registro['data_hora_fim']))
                 ]);
             }
-        }
+        }*/
 
         // Insere os registros de espaços e horários em lote
         $result = $this->eventoEspacoDataHoraModel->insertBatch($espacoDataArray);
@@ -192,11 +194,17 @@ class SchedulingController extends BaseController
         }
 
         // Processa os recursos
-        // Espera-se que o formulário envie os recursos como array de registros, onde cada registro contém:
-        // 'id_espaco', 'id_recurso' e 'quantidade'
         $recursos = $post['recursos'] ?? [];
+        $resourcesToInsert = [];
         if (!empty($recursos) && is_array($recursos)) {
-            $result = $this->eventoRecursosModel->insertBatch($recursos);
+            foreach ($recursos as $idRecurso) {
+                $resourcesToInsert[] = [
+                    'id_evento'  => $eventoId,
+                    'id_recurso' => $idRecurso,
+                    'quantidade' => isset($post['quantidade_recurso'][$idRecurso]) ? $post['quantidade_recurso'][$idRecurso] : 1
+                ];
+            }
+            $result = $this->eventoRecursosModel->insertBatch($resourcesToInsert);
             if (!$result) {
                 log_message('error', 'Erro ao inserir em evento_recursos: ' .
                     json_encode($this->eventoRecursosModel->errors()));
@@ -207,6 +215,7 @@ class SchedulingController extends BaseController
                 ]);
             }
         }
+
 
         // Insere o status do evento como "assinatura pendente"
         $statusData = [
@@ -235,6 +244,11 @@ class SchedulingController extends BaseController
             ]);
         }
 
+        // Mescla os dados do evento com os dados dos espaços e recursos
+        $eventoInfo = $eventoData;
+        $eventoInfo['horarios'] = $espacoDataArray;
+        $eventoInfo['recursos'] = $resourcesToInsert;
+
         // Gera um token exclusivo para o aprovador
         $token = bin2hex(random_bytes(16));
         // Você pode salvar esse token para validação, se necessário.
@@ -242,7 +256,7 @@ class SchedulingController extends BaseController
         // Envia o e-mail para o aprovador com as informações do evento
         helper('url');
         helper('email'); // Certifique-se de carregar o helper de email (ou inclua sua função no helper)
-        $emailEnviado = enviar_email_aprovador($post['aprovador_email'], $token, $eventoData);
+        $emailEnviado = enviar_email_aprovador($post['aprovador_email'], $token, $eventoInfo);
 
         if (!$emailEnviado) {
             log_message('error', 'Erro ao enviar e-mail para o aprovador.');
