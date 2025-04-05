@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 04/04/2025 às 20:51
+-- Tempo de geração: 05/04/2025 às 05:52
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -53,6 +53,21 @@ CREATE TABLE `espacos` (
   `capacidade` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `espacos`
+--
+
+INSERT INTO `espacos` (`id`, `id_predio`, `nome`, `capacidade`) VALUES
+(1, 1, 'Auditório 11', 100),
+(4, 1, 'Auditório 31', 100),
+(5, 1, 'Auditório 33', 100),
+(6, 1, 'Auditório 51', 100),
+(7, 1, 'Auditório 71', 100),
+(8, 1, 'Auditório 91', 100),
+(9, 1, 'Auditório 93', 100),
+(10, 1, 'Auditório 111', 100),
+(11, 1, 'Auditório 113', 100);
+
 -- --------------------------------------------------------
 
 --
@@ -100,12 +115,7 @@ CREATE TABLE `eventos` (
 --
 
 INSERT INTO `eventos` (`id`, `id_solicitante`, `id_unidade_solicitante`, `id_responsavel`, `nome_responsavel`, `id_unidade_responsavel`, `nome_unidade_responsavel`, `email_responsavel`, `telefone1_responsavel`, `telefone2_responsavel`, `id_aprovador`, `id_unidade_aprovador`, `email_aprovador`, `telefone1_aprovador`, `telefone2_aprovador`, `nome`, `quantidade_participantes`, `assinado_solicitante`, `assinado_componente_org`, `observacoes`) VALUES
-(190, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 49, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, ''),
-(191, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 49, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, ''),
-(192, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 49, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, ''),
-(193, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 49, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, ''),
-(194, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 49, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, ''),
-(195, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 49, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, '');
+(207, 46, 20, 50, '', 20, '', 'fernando.jorge@uerj.br', '(21) 97020-7477', '', 46, 20, 'rodrigo.faria@uerj.br', '(21) 99569-8965', '', 'Evento Teste 1', 42, 0, 0, '');
 
 -- --------------------------------------------------------
 
@@ -121,6 +131,13 @@ CREATE TABLE `evento_espaco_data_hora` (
   `data_hora_fim` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `evento_espaco_data_hora`
+--
+
+INSERT INTO `evento_espaco_data_hora` (`id`, `id_evento`, `id_espaco`, `data_hora_inicio`, `data_hora_fim`) VALUES
+(180, 207, 4, '2025-04-04 10:30:00', '2025-04-04 16:30:00');
+
 -- --------------------------------------------------------
 
 --
@@ -133,17 +150,6 @@ CREATE TABLE `evento_recursos` (
   `id_recurso` int(11) NOT NULL,
   `quantidade` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `evento_recursos`
---
-
-INSERT INTO `evento_recursos` (`id`, `id_evento`, `id_recurso`, `quantidade`) VALUES
-(16, 191, 6, 2),
-(18, 192, 6, 2),
-(20, 193, 6, 2),
-(22, 194, 6, 2),
-(24, 195, 6, 2);
 
 -- --------------------------------------------------------
 
@@ -164,12 +170,7 @@ CREATE TABLE `evento_status` (
 --
 
 INSERT INTO `evento_status` (`id`, `id_evento`, `status`, `created_at`, `updated_at`) VALUES
-(106, 190, 'assinatura pendente', '2025-04-04 16:40:23', '2025-04-04 16:40:23'),
-(107, 191, 'assinatura pendente', '2025-04-04 16:40:55', '2025-04-04 16:40:55'),
-(108, 192, 'assinatura pendente', '2025-04-04 16:41:31', '2025-04-04 16:41:31'),
-(109, 193, 'assinatura pendente', '2025-04-04 16:42:29', '2025-04-04 16:42:29'),
-(110, 194, 'assinatura pendente', '2025-04-04 16:49:21', '2025-04-04 16:49:21'),
-(111, 195, 'assinatura pendente', '2025-04-04 16:49:33', '2025-04-04 16:49:33');
+(123, 207, 'assinatura pendente', '2025-04-04 20:01:31', '2025-04-04 20:01:31');
 
 -- --------------------------------------------------------
 
@@ -220,6 +221,28 @@ INSERT INTO `recursos` (`id`, `id_espaco`, `id_predio`, `nome`, `quantidade`, `t
 (7, NULL, 3, 'Refletor', 1, 'Audiovisual', 'disponivel'),
 (8, NULL, 2, 'Pedestal', 1, 'Audiovisual', ''),
 (9, NULL, NULL, 'Filmagem', 1, 'Audiovisual', '');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tokens`
+--
+
+CREATE TABLE `tokens` (
+  `id` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `criado_em` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expira_em` datetime NOT NULL,
+  `tipo` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tokens`
+--
+
+INSERT INTO `tokens` (`id`, `id_usuario`, `token`, `criado_em`, `expira_em`, `tipo`) VALUES
+(1, 46, '207.c36fb6780dc8208907f5dc3580dbef7d', '2025-04-05 03:16:55', '2026-04-05 05:15:03', 'aprovacao');
 
 --
 -- Índices para tabelas despejadas
@@ -290,6 +313,14 @@ ALTER TABLE `recursos`
   ADD KEY `fk_recursos_predio` (`id_predio`);
 
 --
+-- Índices de tabela `tokens`
+--
+ALTER TABLE `tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_usuario` (`id_usuario`),
+  ADD KEY `idx_token` (`token`);
+
+--
 -- AUTO_INCREMENT para tabelas despejadas
 --
 
@@ -315,25 +346,25 @@ ALTER TABLE `espaco_fotos`
 -- AUTO_INCREMENT de tabela `eventos`
 --
 ALTER TABLE `eventos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=196;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=208;
 
 --
 -- AUTO_INCREMENT de tabela `evento_espaco_data_hora`
 --
 ALTER TABLE `evento_espaco_data_hora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=163;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
 
 --
 -- AUTO_INCREMENT de tabela `evento_recursos`
 --
 ALTER TABLE `evento_recursos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de tabela `evento_status`
 --
 ALTER TABLE `evento_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=124;
 
 --
 -- AUTO_INCREMENT de tabela `predio`
@@ -346,6 +377,12 @@ ALTER TABLE `predio`
 --
 ALTER TABLE `recursos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de tabela `tokens`
+--
+ALTER TABLE `tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restrições para tabelas despejadas

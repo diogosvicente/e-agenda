@@ -10,6 +10,7 @@ use App\Models\EventoModel;
 use App\Models\EventoEspacoDataHoraModel;
 use App\Models\EventoRecursosModel;
 use App\Models\EventoStatusModel;
+use App\Models\TokenModel;
 use CodeIgniter\Controller;
 
 class SchedulingController extends BaseController
@@ -21,6 +22,7 @@ class SchedulingController extends BaseController
     protected $eventoModel;
     protected $eventoEspacoDataHoraModel;
     protected $eventoRecursosModel;
+    protected $tokenModel;
     protected $idSistema;
     protected $ssoBaseUrl;
     protected $userInfo;
@@ -35,6 +37,7 @@ class SchedulingController extends BaseController
         $this->eventoEspacoDataHoraModel    = new EventoEspacoDataHoraModel();
         $this->eventoRecursosModel          = new EventoRecursosModel();
         $this->eventoStatusModel            = new EventoStatusModel();
+        $this->tokenModel                   = new TokenModel();
 
         $this->idSistema  = getenv('SISTEMA_ID');
         $this->ssoBaseUrl = getenv('SSO_BASE_URL');
@@ -170,7 +173,7 @@ class SchedulingController extends BaseController
         }
 
         // Verifica conflitos para cada registro de data/hora antes de inserir
-        /*foreach ($espacoDataArray as $registro) {
+        foreach ($espacoDataArray as $registro) {
             if ($this->eventoEspacoDataHoraModel->isConflict($registro['id_espaco'], $registro['data_hora_inicio'], $registro['data_hora_fim'])) {
                 $db->transRollback();
                 return $this->response->setJSON([
@@ -180,7 +183,7 @@ class SchedulingController extends BaseController
                                 date("d/m/Y H:i", strtotime($registro['data_hora_fim']))
                 ]);
             }
-        }*/
+        }
 
         // Insere os registros de espaços e horários em lote
         $result = $this->eventoEspacoDataHoraModel->insertBatch($espacoDataArray);
@@ -250,9 +253,7 @@ class SchedulingController extends BaseController
         $eventoInfo['horarios'] = $espacoDataArray;
         $eventoInfo['recursos'] = $resourcesToInsert;
 
-        // Gera um token exclusivo para o aprovador
-        $token = bin2hex(random_bytes(16));
-        // Você pode salvar esse token para validação, se necessário.
+        $token = $this->tokenModel->gerarToken($post['id_aprovador'], 'aprovacao', $eventoId);
 
         // Envia o e-mail para o aprovador com as informações do evento
         helper('url');
@@ -268,6 +269,51 @@ class SchedulingController extends BaseController
             'success'   => true,
             'id_evento' => $eventoId,
             'message'   => 'Evento cadastrado com sucesso!<br>Um e-mail foi enviado para o aprovador confirmar a solicitação!'
+        ]);
+    }
+
+    public function approve($token)
+    {
+        // Obtém o token válido
+        $row = $this->tokenModel->obterTokenValido($token);
+        // echo "<pre>";
+        // dd(print_r($this->userInfo));
+
+        if (!$row) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'O link fornecido é inválido, expirou ou já foi utilizado.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Verifica se o token expirou (mesmo que, para aprovação, o token não deva expirar,
+        // essa verificação é uma segurança extra)
+        $expira_em   = $row->expira_em;
+        $currentDate = date('Y-m-d H:i:s');
+        if ($currentDate > $expira_em) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'O token expirou.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Verifica se o usuário logado tem o mesmo id do usuário associado ao token
+        if (!isset($this->userInfo['id_usuario']) || $this->userInfo['id_usuario'] != $row->id_usuario) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'Você não tem permissão para confirmar essa solicitação.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Token válido e usuário autorizado; exibe a tela de confirmação da aprovação
+        return view('scheduling/approve_confirm', [
+            'usuario'    => $this->userInfo,
+            'token'      => $token,
+            'ssoBaseUrl' => $this->ssoBaseUrl,
+            'idSistema'  => $this->idSistema,
         ]);
     }
 }
