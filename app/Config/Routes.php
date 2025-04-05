@@ -44,4 +44,8 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('atualizar/(:num)', 'RecursosController::update/$1'); // Atualizar recurso
         $routes->post('deletar/(:num)', 'RecursosController::delete/$1'); // Excluir recurso
     });
+
+    $routes->group('pdf', function ($routes) {
+        $routes->get('gerar/(:segment)', 'MakePDFController::generatePDF/$1');
+    });
 });
