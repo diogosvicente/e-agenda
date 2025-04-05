@@ -217,7 +217,10 @@ function validarCampo(campo) {
     idCampo = idCampo.replace(/\[|\]/g, "_");
     let errorDiv = $(`#divError-${idCampo}`);
     let hasError = false;
-    if ($.trim(campo.val()) === "") {
+    let valor = $.trim(campo.val());
+
+    // Verifica se o campo está vazio
+    if (valor === "") {
         hasError = true;
         campo.addClass("is-invalid");
         if (errorDiv.length === 0) {
@@ -226,9 +229,28 @@ function validarCampo(campo) {
             errorDiv.html("Este campo é obrigatório.").show();
         }
     } else {
-        campo.removeClass("is-invalid");
-        if (errorDiv.length > 0) {
-            errorDiv.html("").hide();
+        // Se for o campo de e-mail, valida o formato
+        if (idCampo === "responsavel_email") {
+            let regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regexEmail.test(valor)) {
+                hasError = true;
+                campo.addClass("is-invalid");
+                if (errorDiv.length === 0) {
+                    campo.after(`<div id="divError-${idCampo}" class="invalid-feedback">E-mail inválido.</div>`);
+                } else {
+                    errorDiv.html("E-mail inválido.").show();
+                }
+            } else {
+                campo.removeClass("is-invalid");
+                if (errorDiv.length > 0) {
+                    errorDiv.html("").hide();
+                }
+            }
+        } else {
+            campo.removeClass("is-invalid");
+            if (errorDiv.length > 0) {
+                errorDiv.html("").hide();
+            }
         }
     }
     return hasError;
@@ -350,12 +372,26 @@ function dataValidation() {
             $('#responsavel_unidade_externo').addClass("is-invalid");
             $('#divError-responsavel_unidade_externo').html("O campo UNIDADE do responsável é obrigatório.").show();
         }
+        // Validação do Responsável – para o campo E-mail
         if ($.trim($("#responsavel_email").val()) === "") {
             totalErros++;
             totalSolicitanteMissing++;
             $('#responsavel_email').addClass("is-invalid");
             $('#divError-responsavel_email').html("O campo E-MAIL do responsável é obrigatório.").show();
+        } else {
+            let emailValor = $.trim($("#responsavel_email").val());
+            let regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regexEmail.test(emailValor)) {
+                totalErros++;
+                totalSolicitanteMissing++;
+                $('#responsavel_email').addClass("is-invalid");
+                $('#divError-responsavel_email').html("E-mail inválido.").show();
+            } else {
+                $('#responsavel_email').removeClass("is-invalid");
+                $('#divError-responsavel_email').html("").hide();
+            }
         }
+
         if ($.trim($("#responsavel_telefone1").val()) === "") {
             totalErros++;
             totalSolicitanteMissing++;
@@ -375,12 +411,26 @@ function dataValidation() {
             $('#responsavel_unidade').addClass("is-invalid");
             $('#divError-responsavel_unidade').html("O campo UNIDADE do responsável é obrigatório.").show();
         }
+        // Validação do Responsável – para o campo E-mail
         if ($.trim($("#responsavel_email").val()) === "") {
             totalErros++;
             totalSolicitanteMissing++;
             $('#responsavel_email').addClass("is-invalid");
             $('#divError-responsavel_email').html("O campo E-MAIL do responsável é obrigatório.").show();
+        } else {
+            let emailValor = $.trim($("#responsavel_email").val());
+            let regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regexEmail.test(emailValor)) {
+                totalErros++;
+                totalSolicitanteMissing++;
+                $('#responsavel_email').addClass("is-invalid");
+                $('#divError-responsavel_email').html("E-mail inválido.").show();
+            } else {
+                $('#responsavel_email').removeClass("is-invalid");
+                $('#divError-responsavel_email').html("").hide();
+            }
         }
+
         if ($.trim($("#responsavel_telefone1").val()) === "") {
             totalErros++;
             totalSolicitanteMissing++;

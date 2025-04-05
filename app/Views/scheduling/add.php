@@ -60,11 +60,24 @@
                                 <div id="divNotice-quantidade_participantes" class="notice-feedback"></div>
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <label for="observacoes" class="form-label">Observações: </label>
+                                <textarea 
+                                    name="observacoes"
+                                    id="observacoes"
+                                    label="Observações"
+                                    class="form-control"
+                                    autocomplete="off"
+                                ><?php echo (isset($registro->observacoes)) ? $registro->observacoes : '' ?>Campo destinado a observações
+                                </textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!--
                     * -------------------------------------------------------------------
-                    * INÍCIO DA TAB 2: SOLICITANTE
+                    * INÍCIO DA TAB 2: SOLICITANTE / RESPONSAVEL / APROVADOR
                     * -------------------------------------------------------------------
                     -->
                     <div class="tab-pane fade" id="solicitante">
@@ -200,14 +213,14 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="responsavel_telefone1" class="form-label">Telefone 1: *</label>
-                                    <input type="text" name="responsavel_telefone1" id="responsavel_telefone1" class="form-control" autocomplete="off" required="required" 
+                                    <input type="text" name="responsavel_telefone1" id="responsavel_telefone1" class="form-control mask-telefone" autocomplete="off" required="required" 
                                         value="<?php echo (isset($registro->responsavel_telefone1)) ? $registro->responsavel_telefone1 : '' ?>" readonly/>
                                     <div id="divError-responsavel_telefone1" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_telefone1" class="notice-feedback"></div>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="responsavel_telefone2" class="form-label">Telefone 2: </label>
-                                    <input type="text" name="responsavel_telefone2" id="responsavel_telefone2" class="form-control" autocomplete="off" 
+                                    <input type="text" name="responsavel_telefone2" id="responsavel_telefone2" class="form-control mask-telefone" autocomplete="off" 
                                         value="<?php echo (isset($registro->responsavel_telefone2)) ? $registro->responsavel_telefone2 : '' ?>" readonly/>
                                     <div id="divError-responsavel_telefone2" class="invalid-feedback"></div>
                                     <div id="divNotice-responsavel_telefone2" class="notice-feedback"></div>

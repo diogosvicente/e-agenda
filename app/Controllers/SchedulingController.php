@@ -22,6 +22,7 @@ class SchedulingController extends BaseController
     protected $eventoModel;
     protected $eventoEspacoDataHoraModel;
     protected $eventoRecursosModel;
+    protected $eventoStatusModel;
     protected $tokenModel;
     protected $idSistema;
     protected $ssoBaseUrl;
@@ -45,7 +46,7 @@ class SchedulingController extends BaseController
         // Obtém os dados do usuário via helper (definido, por exemplo, em auth_helper.php)
         $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
 
-        helper(['email_helper']);
+        helper(['email_helper', 'evento_format_helper']);
     }
 
     public function add()
@@ -308,12 +309,28 @@ class SchedulingController extends BaseController
             ]);
         }
 
-        // Token válido e usuário autorizado; exibe a tela de confirmação da aprovação
+        // Extrai o id do evento a partir do token (formato "id.token")
+        $partes = explode('.', $token);
+        $eventoId = $partes[0];
+
+        // Obtém os dados do evento e relacionados via models
+        $evento         = $this->eventoModel->find($eventoId);
+        $datasHorarios  = $this->eventoEspacoDataHoraModel->where('id_evento', $eventoId)->findAll();
+        $recursos       = $this->eventoRecursosModel->where('id_evento', $eventoId)->findAll();
+        $status         = $this->eventoStatusModel->where('id_evento', $eventoId)->findAll();
+
+        // Carrega o helper para formatar o texto do evento
+        helper('evento_format');
+        $textoEvento = formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status);
+
+        // Token válido e usuário autorizado; exibe a tela de confirmação da aprovação,
+        // passando o texto formatado do evento
         return view('scheduling/approve_confirm', [
-            'usuario'    => $this->userInfo,
-            'token'      => $token,
-            'ssoBaseUrl' => $this->ssoBaseUrl,
-            'idSistema'  => $this->idSistema,
+            'usuario'      => $this->userInfo,
+            'token'        => $token,
+            'ssoBaseUrl'   => $this->ssoBaseUrl,
+            'idSistema'    => $this->idSistema,
+            'textoEvento'  => $textoEvento,
         ]);
     }
 }
