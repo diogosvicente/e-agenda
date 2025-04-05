@@ -253,7 +253,7 @@ class SchedulingController extends BaseController
         $eventoInfo['horarios'] = $espacoDataArray;
         $eventoInfo['recursos'] = $resourcesToInsert;
 
-        $token = $this->tokenModel->gerarToken($post['id_aprovador'], 'aprovacao', $eventoId);
+        $token = $this->tokenModel->gerarToken($post['aprovador_nome_id'], 'aprovacao', $eventoId);
 
         // Envia o e-mail para o aprovador com as informações do evento
         helper('url');

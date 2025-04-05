@@ -41,7 +41,7 @@ if (!function_exists('enviar_email_aprovador')) {
         $emailService->setSubject('e-Prefeitura - Confirmação de Solicitação de Agendamento');
 
         // Gera o link exclusivo para o aprovador (ajuste a rota conforme necessário)
-        $url = base_url("aprovar_evento/$token");
+        $url = base_url("agendamento/aprovar/$token");
 
         // Converte os IDs em nomes para solicitante e unidade
         $nomeSolicitante    = tradeNameByID($eventoInfo['id_solicitante'], 'usuarios', 'nome') 
