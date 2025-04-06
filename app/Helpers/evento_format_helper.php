@@ -58,7 +58,7 @@ if (!function_exists('formatar_evento_aprovacao')) {
         if (!empty($status)) {
             $html .= '<ul class="status">';
             foreach ($status as $s) {
-                $dataStatus = isset($s->data) ? date("d/m/Y H:i", strtotime($s->data)) : "";
+                $dataStatus = isset($s->created_at) ? date("d/m/Y H:i", strtotime($s->created_at)) : "";
                 $html .= '<li>Status: ' . $s->status . ' em ' . $dataStatus . '</li>';
             }
             $html .= '</ul>';

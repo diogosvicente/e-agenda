@@ -32,6 +32,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('atualizar/(:num)', 'SchedulingController::update/$1'); // Atualizar agendamento
         $routes->post('deletar/(:num)', 'SchedulingController::delete/$1'); // Deletar agendamento
         $routes->get('aprovar/(:segment)', 'SchedulingController::approve/$1');
+        $routes->post('confirmar_aprovacao', 'SchedulingController::confirm_approval');
         //http://152.92.228.130/e-agenda/aprovar_evento/c36fb6780dc8208907f5dc3580dbef7d
     });
 

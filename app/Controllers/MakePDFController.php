@@ -50,70 +50,9 @@ class MakePDFController extends BaseController
         helper(['email_helper', 'evento_format_helper']);
         require_once ROOTPATH . '/vendor/autoload.php';
     }
-  
-    public function generatePDF_old($token)
-    {
-        /// Obtém o token válido
-        $row = $this->tokenModel->obterTokenValido($token);
-        // echo "<pre>";
-        // dd(print_r($this->userInfo));
-
-        if (!$row) {
-            return view('errors/invalid_token', [
-                'mensagem'   => 'O link fornecido é inválido, expirou ou já foi utilizado.',
-                'ssoBaseUrl' => $this->ssoBaseUrl,
-                'idSistema'  => $this->idSistema,
-            ]);
-        }
-
-        // Verifica se o token expirou (mesmo que, para aprovação, o token não deva expirar,
-        // essa verificação é uma segurança extra)
-        $expira_em   = $row->expira_em;
-        $currentDate = date('Y-m-d H:i:s');
-        if ($currentDate > $expira_em) {
-            return view('errors/invalid_token', [
-                'mensagem'   => 'O token expirou.',
-                'ssoBaseUrl' => $this->ssoBaseUrl,
-                'idSistema'  => $this->idSistema,
-            ]);
-        }
-
-        // Verifica se o usuário logado tem o mesmo id do usuário associado ao token
-        if (!isset($this->userInfo['id_usuario']) || $this->userInfo['id_usuario'] != $row->id_usuario) {
-            return view('errors/invalid_token', [
-                'mensagem'   => 'Você não tem permissão para confirmar essa solicitação.',
-                'ssoBaseUrl' => $this->ssoBaseUrl,
-                'idSistema'  => $this->idSistema,
-            ]);
-        }
-
-        // Extrai o id do evento a partir do token (formato "id.token")
-        $partes = explode('.', $token);
-        $eventoId = $partes[0];
-
-        // Obtém os dados do evento e relacionados via models
-        $evento         = $this->eventoModel->find($eventoId);
-        $datasHorarios  = $this->eventoEspacoDataHoraModel->where('id_evento', $eventoId)->findAll();
-        $recursos       = $this->eventoRecursosModel->where('id_evento', $eventoId)->findAll();
-        $status         = $this->eventoStatusModel->where('id_evento', $eventoId)->findAll();
-
-        // Carrega o helper para formatar o texto do evento
-        helper('evento_format');
-        $textoEvento = formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status);
-
-        // Token válido e usuário autorizado; exibe a tela de confirmação da aprovação,
-        // passando o texto formatado do evento
-        return view('scheduling/approve_confirm', [
-            'usuario'      => $this->userInfo,
-            'token'        => $token,
-            'ssoBaseUrl'   => $this->ssoBaseUrl,
-            'idSistema'    => $this->idSistema,
-            'textoEvento'  => $textoEvento,
-        ]);
-    }
 
     public function setHeader() {
-		$logo = base_url('/public/assets/images/LOGO PREFEITURA.png');
+		$logo = base_url('/public/assets/images/LOGO_PREFEITURA.jpg');
 		return '
 			<table width="100%" style="border-collapse: collapse;">
 				<tr>
@@ -140,19 +79,60 @@ class MakePDFController extends BaseController
 			</table>';
 	}
 
-	public function setPag1($info) {
-		return "Pagina1";
+	public function setPag1($evento, $datasHorarios, $recursos, $status) {
+		return formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status);
 	}
 
-	public function generatePDF()
-	{
-		$this->response->setHeader('Content-Type', 'application/pdf');
+	public function generatePDF($token)
+    {
+        // Obtém o token válido
+        $row = $this->tokenModel->obterTokenValido($token);
+
+        if (!$row) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'O link fornecido é inválido, expirou ou já foi utilizado.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Verifica se o token expirou
+        $expira_em   = $row->expira_em;
+        $currentDate = date('Y-m-d H:i:s');
+        if ($currentDate > $expira_em) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'O token expirou.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Verifica se o usuário logado tem o mesmo id do usuário associado ao token
+        if (!isset($this->userInfo['id_usuario']) || $this->userInfo['id_usuario'] != $row->id_usuario) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'Você não tem permissão para confirmar essa solicitação.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Extrai o id do evento a partir do token (formato "id.token")
+        $partes   = explode('.', $token);
+        $eventoId = $partes[0];
+
+        // Obtém os dados do evento e relacionados via models
+        $evento        = $this->eventoModel->find($eventoId);
+        $datasHorarios = $this->eventoEspacoDataHoraModel->where('id_evento', $eventoId)->findAll();
+        $recursos      = $this->eventoRecursosModel->where('id_evento', $eventoId)->findAll();
+        $status        = $this->eventoStatusModel->where('id_evento', $eventoId)->findAll();
+
+        $this->response->setHeader('Content-Type', 'application/pdf');
 
 		$mpdf = new \Mpdf\Mpdf(
 			[
 				'mode' => 'utf-8',
 				'format' => 'A4-P',
-				'margin_top' => 110, // Ajuste a margem superior para dar espaço ao cabeçalho
+				'margin_top' => 30,
 				'margin_bottom' => 30,
 				'default_font_size' => 8
 			]
@@ -161,9 +141,11 @@ class MakePDFController extends BaseController
 		$mpdf->SetHTMLHeader($this->setHeader());
 		$mpdf->SetHTMLFooter($this->setFooter());
 
-		$mpdf->WriteHTML($this->setPag1(null));
+		$mpdf->WriteHTML($this->setPag1($evento, $datasHorarios, $recursos, $status));
 
-		$filename = "relatorio.pdf";
-		$mpdf->Output($filename, "I"); // Alterado para "I" para abrir no navegador
-	}
+        // Exibe o PDF no navegador
+        $filename = "relatorio.pdf";
+        $mpdf->Output($filename, "I");
+    }
+
 }

@@ -278,7 +278,7 @@ class SchedulingController extends BaseController
         // Obtém o token válido
         $row = $this->tokenModel->obterTokenValido($token);
         // echo "<pre>";
-        // dd(print_r($this->userInfo));
+        // dd(print_r($this->row));
 
         if (!$row) {
             return view('errors/invalid_token', [
@@ -322,6 +322,10 @@ class SchedulingController extends BaseController
         // Carrega o helper para formatar o texto do evento
         helper('evento_format');
         $textoEvento = formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status);
+        $greetings = array(
+            "aprovador"     => tradeNameByID($evento->id_aprovador, 'usuarios', 'nome'),
+            "data_cadastro" => $evento->created_at
+        );
 
         // Token válido e usuário autorizado; exibe a tela de confirmação da aprovação,
         // passando o texto formatado do evento
@@ -331,6 +335,67 @@ class SchedulingController extends BaseController
             'ssoBaseUrl'   => $this->ssoBaseUrl,
             'idSistema'    => $this->idSistema,
             'textoEvento'  => $textoEvento,
+            'greetings'    => $greetings
         ]);
+    }
+
+    public function confirm_approval()
+    {
+        // Obtém a senha enviada via POST
+        $senhaInput = $this->request->getPost('senha');
+        $token = $this->request->getPost('token');
+
+        // echo "<pre>"; dd(print_r($this->userInfo));
+
+        // Verifica se os dados do usuário foram obtidos via SSO (helper getUserInfo)
+        if (!$this->userInfo || !isset($this->userInfo['senha'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Não foi possível recuperar as informações do usuário.'
+            ]);
+        }
+
+        // Validação da senha
+        if (!password_verify($senhaInput, $this->userInfo['senha'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Senha incorreta.'
+            ]);
+        }
+
+        // Valida o token
+        $row = $this->tokenModel->obterTokenValido($token);
+        if (!$row) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Token inválido ou expirado.'
+            ]);
+        }
+
+        // Verifica se o usuário logado é o mesmo associado ao token
+        if (!isset($this->userInfo['id_usuario']) || $this->userInfo['id_usuario'] != $row->id_usuario) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Você não tem permissão para confirmar essa solicitação.'
+            ]);
+        }
+
+        // Extrai o id do evento a partir do token (formato "id.token")
+        $parts = explode('.', $token);
+        $eventoId = $parts[0];
+
+        // Registra o novo status usando o método do model de status
+        $insertResult = $this->eventoStatusModel->inserirStatusAprovacao($eventoId, $this->userInfo['id_usuario']);
+        if ($insertResult) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Solicitação aprovada com sucesso.'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Erro ao registrar a aprovação.'
+            ]);
+        }
     }
 }

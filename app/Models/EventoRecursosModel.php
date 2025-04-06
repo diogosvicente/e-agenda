@@ -11,4 +11,3 @@ class EventoRecursosModel extends Model
     protected $allowedFields = ['id_evento', 'id_recurso', 'quantidade'];
     protected $returnType = 'object';
 }
-            
