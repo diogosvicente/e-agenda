@@ -1,5 +1,5 @@
 <?php $this->extend('template/base'); ?>
-<?php $this->section('content'); //echo "<pre>"; dd(print_r($units));?>
+<?php $this->section('content'); //echo "<pre>"; dd(print_r($users));?>
 
 <link rel="stylesheet" href="<?php echo base_url('public/assets/css/scheduling/style.css'); ?>">
 
@@ -47,14 +47,14 @@
                     -->
                     <div class="tab-pane fade show active" id="evento">
                         <div class="row mb-3">
-                            <div class="col-sm-9">
+                            <div class="col-sm-8">
                                 <label for="titulo_evento" class="form-label">Nome da Atividade / Evento: *</label>
                                 <input value="Evento Teste 1" type="text" name="titulo_evento" id="titulo_evento" label="titulo_evento:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->titulo_evento)) ? $registro->titulo_evento : '' ?>" />
                                 <div id="divError-titulo_evento" class="invalid-feedback"></div>
                                 <div id="divNotice-titulo_evento" class="notice-feedback"></div>
                             </div>
-                            <div class="col-sm-3">
-                                <label for="quantidade_participantes" class="form-label">Quantidade de Participantes: *</label>
+                            <div class="col-sm-4">
+                                <label for="quantidade_participantes" class="form-label">Quantidade Estimada de Participantes: *</label>
                                 <input value="42" type="text" name="quantidade_participantes" id="quantidade_participantes" label="quantidade_participantes:" class="form-control" autocomplete="off" required="required" value="<?php echo (isset($registro->quantidade_participantes)) ? $registro->quantidade_participantes : '' ?>" />
                                 <div id="divError-quantidade_participantes" class="invalid-feedback"></div>
                                 <div id="divNotice-quantidade_participantes" class="notice-feedback"></div>
@@ -229,19 +229,21 @@
                         </fieldset>
 
                         <!-- Aprovador -->
-                        <fieldset class="fieldset-child">
-                            <legend class="fieldset-child">Aprovador</legend>
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <!-- O checkbox define se os dados do aprovador serão os do usuário logado -->
-                                        <input type="checkbox" name="eu_sou_o_aprovador" value="S" id="eu_sou_o_aprovador" class="form-check-input" data-required="*" />
-                                        <label for="eu_sou_o_aprovador" class="form-check-label">
-                                            Eu sou o aprovador
-                                        </label>
+                        <?php if (isset($userInfo) && $userInfo['e_aprovador'] == 1): ?>
+                            <fieldset class="fieldset-child">
+                                <legend class="fieldset-child">Diretor da Unidade</legend>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <!-- O checkbox define se os dados do aprovador serão os do usuário logado -->
+                                            <input type="checkbox" name="eu_sou_o_aprovador" value="S" id="eu_sou_o_aprovador" class="form-check-input" data-required="*" />
+                                            <label for="eu_sou_o_aprovador" class="form-check-label">
+                                                Eu sou o diretor
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            <?php endif; ?>
                             <div class="row">
                                 <!-- Select para escolher o aprovador dentre os usuários do sistema pai -->
                                 <div class="col-sm-6">
@@ -251,9 +253,11 @@
                                         <option value="">Selecione o aprovador</option>
                                         <?php if(isset($users) && is_array($users)): ?>
                                             <?php foreach($users as $user): ?>
-                                                <option value="<?php echo $user['id']; ?>" <?php echo (isset($registro->aprovador_nome) && $registro->aprovador_nome == $user['nome']) ? 'selected' : ''; ?>>
-                                                    <?php echo $user['nome']; ?>
-                                                </option>
+                                                <?php if ($user['e_aprovador'] == 1) : ?>
+                                                    <option value="<?php echo $user['id']; ?>" <?php echo (isset($registro->aprovador_nome) && $registro->aprovador_nome == $user['nome']) ? 'selected' : ''; ?>>
+                                                        <?php echo $user['nome']; ?>
+                                                    </option>
+                                                <?php endif; ?>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>

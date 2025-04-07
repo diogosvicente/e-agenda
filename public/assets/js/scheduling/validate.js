@@ -128,12 +128,14 @@ $(document).ready(function () {
     // Popula os selects com os usuários já cadastrados
     if (Array.isArray(window.users)) {
         let options = '<option value="">Selecione...</option>';
-        window.users.forEach(user => {
-            options += `<option value="${user.id}">${user.nome}</option>`;
-        });
+        window.users.filter(user => user.e_aprovador == 1)
+                    .forEach(user => {
+                        options += `<option value="${user.id}">${user.nome}</option>`;
+                    });
         $("#aprovador_nome").html(options);
         $("#responsavel_nome").html(options);
     }
+    
     
     // Inicializa os checkboxes de responsável como desmarcados e define o modo interno
     $("#eu_sou_o_responsavel, #responsavel_externo").prop("checked", false);

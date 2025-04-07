@@ -15,7 +15,7 @@ if (!function_exists('formatar_evento_aprovacao')) {
     {
         $responsavel = "";
         if ($evento->id_responsavel == 0) {
-            $nome_responsavel = $evento->nome_reponsavel;
+            $nome_responsavel = $evento->nome_responsavel;
             $unidade_responsavel = $evento->nome_unidade_responsavel;
         } else {
             $nome_responsavel = tradeNameByID($evento->id_responsavel, 'usuarios', 'nome');
@@ -38,7 +38,6 @@ if (!function_exists('formatar_evento_aprovacao')) {
         if (!empty($datasHorarios)) {
             $html .= '<ul class="horarios">';
             foreach ($datasHorarios as $horario) {
-                // echo "<pre>"; dd(print_r($horario));
                 $espaco = "";
                 if (empty($horario->id_espaco)) {
                     $espaco = getNameById($horario->id_predio, 'predio', 'nome');

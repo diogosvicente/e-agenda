@@ -72,9 +72,11 @@ if (!function_exists('enviar_email_aprovador')) {
         if (!empty($eventoInfo['horarios']) && is_array($eventoInfo['horarios'])) {
             $espacosInfo .= "<ul>";
             foreach ($eventoInfo['horarios'] as $horario) {
-                $nomeEspaco = getNameById($horario['id_espaco'], 'espacos', 'nome');
-                if (!$nomeEspaco) {
-                    $nomeEspaco = $horario['id_espaco'];
+                $nomeEspaco = "";
+                if (empty($horario['id_espaco'])) {
+                    $nomeEspaco = getNameById($horario['id_predio'], 'predio', 'nome');
+                } else {
+                    $nomeEspaco = getNameById($horario['id_espaco'], 'espacos', 'nome');
                 }
                 $espacosInfo .= "<li><strong>Espaço Solicitado:</strong> " . htmlspecialchars($nomeEspaco) .
                                 " | <strong>Data:</strong> " . date("d/m/Y", strtotime($horario['data_hora_inicio'])) .
@@ -178,7 +180,7 @@ if (!function_exists('enviar_email_aprovador')) {
 
         // Para testes, exibe o corpo do e-mail e interrompe a execução.
         // echo "<pre>";
-        // dd(print_r($destinatarios));
+        // dd(print_r($message));
 
         $emailService->setMessage($message);
         $emailService->setMailType('html');

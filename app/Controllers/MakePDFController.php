@@ -64,7 +64,7 @@ class MakePDFController extends BaseController
 					</td>
 					<td align="right">
 						<p>UERJ - PREFEITURA DOS CAMPI&nbsp;</p>
-						<p>e-Preitura | e-Agenda</p>
+						<p>e-Prefeitura | e-Agenda</p>
 					</td>
 				</tr>
 			</table>

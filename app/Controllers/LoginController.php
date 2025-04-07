@@ -24,6 +24,7 @@ class LoginController extends Controller
             'ssoBaseUrl' => $this->ssoBaseUrl
         ]);
     }
+
     public function logout()
     {
         $response = service('response');

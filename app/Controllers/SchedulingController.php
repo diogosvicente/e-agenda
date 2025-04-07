@@ -107,8 +107,6 @@ class SchedulingController extends BaseController
             'nome'                     => $post['titulo_evento'],
             'quantidade_participantes' => $post['quantidade_participantes'] ?? 0,
             'observacoes'              => $post['observacoes'] ?? '',
-            'assinado_solicitante'     => 0,
-            'assinado_componente_org'  => 0,
             'email_responsavel'        => $post['responsavel_email'] ?? '',
             'telefone1_responsavel'    => $post['responsavel_telefone1'] ?? '',
             'telefone2_responsavel'    => $post['responsavel_telefone2'] ?? '',

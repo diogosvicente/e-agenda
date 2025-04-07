@@ -11,6 +11,8 @@
     let today = new Date().toISOString().split('T')[0];
 
     $.getJSON("<?php echo base_url('calendario/data'); ?>", function (data) {
+
+      console.log(data);
       
       // 🔹 Criar um mapa de espaços para buscas rápidas
       let espacosMap = {};
