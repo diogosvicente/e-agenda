@@ -15,7 +15,9 @@ if (!function_exists('getNameById')) {
         // Lista de tabelas e colunas permitidas para consulta
         $allowed = [
             'espacos' => ['nome', 'sigla'],
+            'predio' => ['nome', 'sigla'],
             'recursos' => ['nome'],
+            'status_definicao' => ['nome', 'descricao'],
             // Adicione outras tabelas permitidas conforme necessário.
         ];
         

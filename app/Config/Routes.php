@@ -33,7 +33,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('deletar/(:num)', 'SchedulingController::delete/$1'); // Deletar agendamento
         $routes->get('aprovar/(:segment)', 'SchedulingController::approve/$1');
         $routes->post('confirmar_aprovacao', 'SchedulingController::confirm_approval');
-        //http://152.92.228.130/e-agenda/aprovar_evento/c36fb6780dc8208907f5dc3580dbef7d
+        $routes->get('acompanhamento/(:segment)', 'SchedulingController::followUp/$1');
     });
 
     // Grupo de rotas para Recursos
@@ -48,5 +48,6 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
 
     $routes->group('pdf', function ($routes) {
         $routes->get('gerar/(:segment)', 'MakePDFController::generatePDF/$1');
+        $routes->get('acompanhar/(:segment)', 'MakePDFController::generatePDFFollowUp/$1');
     });
 });

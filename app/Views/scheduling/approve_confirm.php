@@ -77,21 +77,21 @@ $(function(){
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // Se "success" = true, exibe alerta verde
+                    // Desabilita o input da senha e o botão de aprovação
+                    $('#senha').prop('disabled', true);
+                    $('#formAprovacao button[type="submit"]').prop('disabled', true);
+                    // Exibe a mensagem com o link para acompanhar a solicitação
                     $('#aprovacaoResult').html('<div class="alert alert-success">' + response.message + '</div>');
                 } else {
-                    // Se "success" = false, exibe alerta vermelho
                     $('#aprovacaoResult').html('<div class="alert alert-danger">' + response.message + '</div>');
                 }
             },
             error: function(xhr) {
-                // Em caso de erro, exibe a mensagem de erro
                 $('#aprovacaoResult').html('<div class="alert alert-danger">Ocorreu um erro ao processar a aprovação.</div>');
             }
         });
     });
 });
 </script>
-
 
 <?php $this->endSection(); ?>

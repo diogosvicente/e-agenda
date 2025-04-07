@@ -430,6 +430,9 @@
                     <button name="btnValidateEvento" type="button" id="btnValidateEvento" value="true" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12 d-flex flex-row justify-content-begin py-2 py-sm-0" id="ext_buttons"></div>
+            </div>
 		</form>
 	</div>
 </section>

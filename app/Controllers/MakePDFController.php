@@ -10,6 +10,7 @@ use App\Models\EventoModel;
 use App\Models\EventoEspacoDataHoraModel;
 use App\Models\EventoRecursosModel;
 use App\Models\EventoStatusModel;
+use App\Models\EventoVerificacaoModel;
 use App\Models\TokenModel;
 use CodeIgniter\Controller;
 use \Mpdf\Mpdf;
@@ -24,6 +25,7 @@ class MakePDFController extends BaseController
     protected $eventoEspacoDataHoraModel;
     protected $eventoRecursosModel;
     protected $eventoStatusModel;
+    protected $eventoVerificacaoModel;
     protected $tokenModel;
     protected $idSistema;
     protected $ssoBaseUrl;
@@ -39,6 +41,7 @@ class MakePDFController extends BaseController
         $this->eventoEspacoDataHoraModel    = new EventoEspacoDataHoraModel();
         $this->eventoRecursosModel          = new EventoRecursosModel();
         $this->eventoStatusModel            = new EventoStatusModel();
+        $this->eventoVerificacaoModel       = new EventoVerificacaoModel();
         $this->tokenModel                   = new TokenModel();
 
         $this->idSistema  = getenv('SISTEMA_ID');
@@ -148,4 +151,48 @@ class MakePDFController extends BaseController
         $mpdf->Output($filename, "I");
     }
 
+    public function generatePDFFollowUp($token)
+    {
+        // Obtém o token válido
+        $row = $this->eventoVerificacaoModel->obterTokenValido($token);
+
+        if (!$row) {
+            return view('errors/invalid_token', [
+                'mensagem'   => 'O link fornecido é inválido, expirou ou já foi utilizado.',
+                'ssoBaseUrl' => $this->ssoBaseUrl,
+                'idSistema'  => $this->idSistema,
+            ]);
+        }
+
+        // Extrai o id do evento a partir do token (formato "id.token")
+        $partes   = explode('.', $token);
+        $eventoId = $partes[0];
+
+        // Obtém os dados do evento e relacionados via models
+        $evento        = $this->eventoModel->find($eventoId);
+        $datasHorarios = $this->eventoEspacoDataHoraModel->where('id_evento', $eventoId)->findAll();
+        $recursos      = $this->eventoRecursosModel->where('id_evento', $eventoId)->findAll();
+        $status        = $this->eventoStatusModel->where('id_evento', $eventoId)->findAll();
+
+        $this->response->setHeader('Content-Type', 'application/pdf');
+
+		$mpdf = new \Mpdf\Mpdf(
+			[
+				'mode' => 'utf-8',
+				'format' => 'A4-P',
+				'margin_top' => 30,
+				'margin_bottom' => 30,
+				'default_font_size' => 8
+			]
+		);
+
+		$mpdf->SetHTMLHeader($this->setHeader());
+		$mpdf->SetHTMLFooter($this->setFooter());
+
+		$mpdf->WriteHTML($this->setPag1($evento, $datasHorarios, $recursos, $status));
+
+        // Exibe o PDF no navegador
+        $filename = "relatorio.pdf";
+        $mpdf->Output($filename, "I");
+    }
 }

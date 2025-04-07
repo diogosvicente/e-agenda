@@ -10,6 +10,8 @@ use App\Models\EventoModel;
 use App\Models\EventoEspacoDataHoraModel;
 use App\Models\EventoRecursosModel;
 use App\Models\EventoStatusModel;
+use App\Models\EventoVerificacaoModel;
+use App\Models\StatusDefinicaoModel;
 use App\Models\TokenModel;
 use CodeIgniter\Controller;
 
@@ -23,6 +25,8 @@ class SchedulingController extends BaseController
     protected $eventoEspacoDataHoraModel;
     protected $eventoRecursosModel;
     protected $eventoStatusModel;
+    protected $eventoVerificacaoModel;
+    protected $statusDefinicaoModel;
     protected $tokenModel;
     protected $idSistema;
     protected $ssoBaseUrl;
@@ -38,6 +42,8 @@ class SchedulingController extends BaseController
         $this->eventoEspacoDataHoraModel    = new EventoEspacoDataHoraModel();
         $this->eventoRecursosModel          = new EventoRecursosModel();
         $this->eventoStatusModel            = new EventoStatusModel();
+        $this->eventoVerificacaoModel       = new EventoVerificacaoModel();
+        $this->statusDefinicaoModel         = new StatusDefinicaoModel();
         $this->tokenModel                   = new TokenModel();
 
         $this->idSistema  = getenv('SISTEMA_ID');
@@ -46,7 +52,7 @@ class SchedulingController extends BaseController
         // Obtém os dados do usuário via helper (definido, por exemplo, em auth_helper.php)
         $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
 
-        helper(['email_helper', 'evento_format_helper']);
+        helper(['url', 'email', 'evento_format', 'evento_verificacao']);
     }
 
     public function add()
@@ -155,9 +161,18 @@ class SchedulingController extends BaseController
             }
             // Processa cada entrada de data/hora
             $rows = array_map(function($data) use ($eventoId, $espaco) {
+                // Se o id vier com prefixo "P-", trata como prédio
+                if (isset($espaco['id']) && strpos($espaco['id'], 'P-') === 0) {
+                    $id_predio = substr($espaco['id'], 2); // remove "P-"
+                    $id_espaco = null;
+                } else {
+                    $id_predio = null;
+                    $id_espaco = isset($espaco['id']) ? $espaco['id'] : null;
+                }
                 return [
                     'id_evento'        => $eventoId,
-                    'id_espaco'        => isset($espaco['id']) ? $espaco['id'] : null,
+                    'id_predio'        => $id_predio,
+                    'id_espaco'        => $id_espaco,
                     'data_hora_inicio' => date("Y-m-d H:i:s", strtotime($data['data_inicio'] . ' ' . $data['hora_inicio'])),
                     'data_hora_fim'    => date("Y-m-d H:i:s", strtotime($data['data_inicio'] . ' ' . $data['hora_fim']))
                 ];
@@ -175,13 +190,22 @@ class SchedulingController extends BaseController
 
         // Verifica conflitos para cada registro de data/hora antes de inserir
         foreach ($espacoDataArray as $registro) {
-            if ($this->eventoEspacoDataHoraModel->isConflict($registro['id_espaco'], $registro['data_hora_inicio'], $registro['data_hora_fim'])) {
+            if ($this->eventoEspacoDataHoraModel->isConflict($registro['id_espaco'], $registro['id_predio'], $registro['data_hora_inicio'], $registro['data_hora_fim'])) {
                 $db->transRollback();
+                
+                // Se o id_espaco não for nulo, utiliza o nome do espaço; caso contrário, utiliza o nome do prédio
+                if (!is_null($registro['id_espaco'])) {
+                    $nomeItem = getNameById($registro['id_espaco'], 'espacos', 'nome');
+                } else {
+                    $nomeItem = getNameById($registro['id_predio'], 'predio', 'nome');
+                }
+                
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => "Já existe um evento agendado para o espaço {$registro['id_espaco']} no período de " .
-                                date("d/m/Y H:i", strtotime($registro['data_hora_inicio'])) . " a " .
-                                date("d/m/Y H:i", strtotime($registro['data_hora_fim']))
+                    'message' => "Já existe um evento agendado para " . $nomeItem .
+                                 " no período de " .
+                                 date("d/m/Y H:i", strtotime($registro['data_hora_inicio'])) . " a " .
+                                 date("d/m/Y H:i", strtotime($registro['data_hora_fim']))
                 ]);
             }
         }
@@ -224,8 +248,9 @@ class SchedulingController extends BaseController
 
         // Insere o status do evento como "assinatura pendente"
         $statusData = [
-            'id_evento' => $eventoId,
-            'status'    => 'assinatura pendente'
+            'id_evento'     => $eventoId,
+            'id_status'     => 1,
+            'id_usuario'    => $post['id_solicitante']
         ];
         $result = $this->eventoStatusModel->insert($statusData);
         if (!$result) {
@@ -254,21 +279,20 @@ class SchedulingController extends BaseController
         $eventoInfo['horarios'] = $espacoDataArray;
         $eventoInfo['recursos'] = $resourcesToInsert;
 
-        $token = $this->tokenModel->gerarToken($post['aprovador_nome_id'], 'aprovacao', $eventoId);
+        $tokenAcompanhamento = gerarRegistroEventoVerificacao($eventoId);
 
-        // Envia o e-mail para o aprovador com as informações do evento
-        helper('url');
-        helper('email'); // Certifique-se de carregar o helper de email (ou inclua sua função no helper)
-        $emailEnviado = enviar_email_aprovador($token, $eventoInfo);
+        $tokenAprovacao = $this->tokenModel->gerarToken($post['aprovador_nome_id'], 'aprovacao', $eventoId);
+
+        $emailEnviado = enviar_email_aprovador($tokenAprovacao, $eventoInfo);
 
         if (!$emailEnviado) {
             log_message('error', 'Erro ao enviar e-mail para o aprovador.');
-            // Aqui você pode optar por retornar uma mensagem ou continuar com a confirmação do cadastro.
         }
 
         return $this->response->setJSON([
             'success'   => true,
             'id_evento' => $eventoId,
+            'token'     => $tokenAcompanhamento,
             'message'   => 'Evento cadastrado com sucesso!<br>Um e-mail foi enviado para o aprovador confirmar a solicitação!'
         ]);
     }
@@ -277,8 +301,6 @@ class SchedulingController extends BaseController
     {
         // Obtém o token válido
         $row = $this->tokenModel->obterTokenValido($token);
-        // echo "<pre>";
-        // dd(print_r($this->row));
 
         if (!$row) {
             return view('errors/invalid_token', [
@@ -322,6 +344,7 @@ class SchedulingController extends BaseController
         // Carrega o helper para formatar o texto do evento
         helper('evento_format');
         $textoEvento = formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status);
+
         $greetings = array(
             "aprovador"     => tradeNameByID($evento->id_aprovador, 'usuarios', 'nome'),
             "data_cadastro" => $evento->created_at
@@ -343,9 +366,7 @@ class SchedulingController extends BaseController
     {
         // Obtém a senha enviada via POST
         $senhaInput = $this->request->getPost('senha');
-        $token = $this->request->getPost('token');
-
-        // echo "<pre>"; dd(print_r($this->userInfo));
+        $token      = $this->request->getPost('token');
 
         // Verifica se os dados do usuário foram obtidos via SSO (helper getUserInfo)
         if (!$this->userInfo || !isset($this->userInfo['senha'])) {
@@ -355,7 +376,7 @@ class SchedulingController extends BaseController
             ]);
         }
 
-        // Validação da senha
+        // Validação da senha usando password_verify()
         if (!password_verify($senhaInput, $this->userInfo['senha'])) {
             return $this->response->setJSON([
                 'success' => false,
@@ -381,15 +402,22 @@ class SchedulingController extends BaseController
         }
 
         // Extrai o id do evento a partir do token (formato "id.token")
-        $parts = explode('.', $token);
+        $parts    = explode('.', $token);
         $eventoId = $parts[0];
 
         // Registra o novo status usando o método do model de status
         $insertResult = $this->eventoStatusModel->inserirStatusAprovacao($eventoId, $this->userInfo['id_usuario']);
-        if ($insertResult) {
+
+        if ($insertResult !== false) {
+            // Remove o token da tabela tokens após aprovação
+            $this->tokenModel->delete($row->id);
+
+            // Gera o link para a página de acompanhamento do pedido de agendamento
+            $acompanhamentoUrl = base_url('agendamento/acompanhamento/' . $this->eventoVerificacaoModel->obterTokenPorEvento($eventoId));
+
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Solicitação aprovada com sucesso.'
+                'message' => 'Solicitação aprovada com sucesso.<hr><a href="' . $acompanhamentoUrl . '" class="btn btn-primary">Clique aqui</a> para acompanhar o pedido de agendamento.'
             ]);
         } else {
             return $this->response->setJSON([
@@ -397,5 +425,49 @@ class SchedulingController extends BaseController
                 'message' => 'Erro ao registrar a aprovação.'
             ]);
         }
+    }
+
+    public function followUp($token)
+    {
+        $parts = explode('.', $token);
+        if(count($parts) !== 2){
+            // Token inválido
+            return view(
+                'errors/invalid_token',
+                [
+                    'mensagem' => 'Token inválido.',
+                    'ssoBaseUrl'    => $this->ssoBaseUrl,
+                    'idSistema'     => $this->idSistema,
+                ]
+            );
+        }
+
+        $eventoId = $parts[0];
+
+        $registro = $this->eventoVerificacaoModel->obterTokenValido($token);
+        if(!$registro){
+            return view(
+                'errors/invalid_token',
+                [
+                    'mensagem' => 'Token inválido ou expirado.',
+                    'ssoBaseUrl'    => $this->ssoBaseUrl,
+                    'idSistema'     => $this->idSistema,
+                ]
+            );
+        }
+
+        $evento = $this->eventoModel->find($eventoId);
+
+        $statusPossiveis = $this->statusDefinicaoModel->getAllOrdered();
+        $historicoStatus = $this->eventoStatusModel->getStatusByEvento($eventoId);
+
+        return view('scheduling/followUp', [
+            'evento'            => $evento,
+            'token'             => $token,
+            'statusPossiveis'   => $statusPossiveis,
+            'historicoStatus'   => $historicoStatus,
+            'ssoBaseUrl'        => $this->ssoBaseUrl,
+            'idSistema'         => $this->idSistema,
+        ]);
     }
 }

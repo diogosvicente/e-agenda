@@ -13,6 +13,15 @@ if (!function_exists('formatar_evento_aprovacao')) {
      */
     function formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status)
     {
+        $responsavel = "";
+        if ($evento->id_responsavel == 0) {
+            $nome_responsavel = $evento->nome_reponsavel;
+            $unidade_responsavel = $evento->nome_unidade_responsavel;
+        } else {
+            $nome_responsavel = tradeNameByID($evento->id_responsavel, 'usuarios', 'nome');
+            $unidade_responsavel = tradeNameByID($evento->id_unidade_responsavel, 'unidades', 'nome');
+        }
+
         $html = '<div class="evento-aprovacao">';
         
         // Dados gerais do evento
@@ -20,8 +29,8 @@ if (!function_exists('formatar_evento_aprovacao')) {
         $html .= '<p><strong>Nome:</strong> ' . $evento->nome . '</p>';
         $html .= '<p><strong>Solicitante:</strong> ' . tradeNameByID($evento->id_solicitante, 'usuarios', 'nome') . '</p>';
         $html .= '<p><strong>Unidade do Solicitante:</strong> ' . tradeNameByID($evento->id_unidade_solicitante, 'unidades', 'nome') . '</p>';
-        $html .= '<p><strong>Responsável:</strong> ' . $evento->nome_responsavel . '</p>';
-        $html .= '<p><strong>Unidade do Responsável:</strong> ' . $evento->nome_unidade_responsavel . '</p>';
+        $html .= '<p><strong>Responsável:</strong> ' . $nome_responsavel . '</p>';
+        $html .= '<p><strong>Unidade do Responsável:</strong> ' . $unidade_responsavel . '</p>';
         $html .= '<p><strong>Observações:</strong> ' . $evento->observacoes . '</p>';
         
         // Horários
@@ -29,10 +38,17 @@ if (!function_exists('formatar_evento_aprovacao')) {
         if (!empty($datasHorarios)) {
             $html .= '<ul class="horarios">';
             foreach ($datasHorarios as $horario) {
+                // echo "<pre>"; dd(print_r($horario));
+                $espaco = "";
+                if (empty($horario->id_espaco)) {
+                    $espaco = getNameById($horario->id_predio, 'predio', 'nome');
+                } else {
+                    $espaco = getNameById($horario->id_espaco, 'espacos', 'nome');
+                }
                 $data   = date("d/m/Y", strtotime($horario->data_hora_inicio));
                 $inicio = date("H:i", strtotime($horario->data_hora_inicio));
                 $fim    = date("H:i", strtotime($horario->data_hora_fim));
-                $html .= '<li>Data: ' . $data . ' | Início: ' . $inicio . ' | Fim: ' . $fim . '</li>';
+                $html .= '<li>Espaço: ' . $espaco . ' | Data: ' . $data . ' | Início: ' . $inicio . ' | Fim: ' . $fim . '</li>';
             }
             $html .= '</ul>';
         } else {
@@ -58,8 +74,9 @@ if (!function_exists('formatar_evento_aprovacao')) {
         if (!empty($status)) {
             $html .= '<ul class="status">';
             foreach ($status as $s) {
+                $nomeStatus = "<strong>" . getNameById($s->id_status, 'status_definicao', 'nome') . "</strong> - <strong>" . getNameById($s->id_status, 'status_definicao', 'descricao') . "</strong>";
                 $dataStatus = isset($s->created_at) ? date("d/m/Y H:i", strtotime($s->created_at)) : "";
-                $html .= '<li>Status: ' . $s->status . ' em ' . $dataStatus . '</li>';
+                $html .= '<li>Status: ' . $nomeStatus . ' em ' . $dataStatus . '</li>';
             }
             $html .= '</ul>';
         } else {

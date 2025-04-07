@@ -300,8 +300,7 @@ function validateEvento() {
                 $("#btnValidateEvento, #btnCancel").prop("disabled", true);
                 $("#ext_buttons").html(`
                     <hr>
-                    <a class="btn btn-warning" href="${baseUrl}eventos/editar/${response.id_evento}">Editar Evento</a>
-                    <a class="btn btn-primary" href="${baseUrl}eventos">Voltar à Listagem</a>
+                    <a class="btn btn-primary" href="${baseUrl}agendamento/acompanhamento/${response.token}">Acompanhar Solicitação</a>
                 `);
             } else {
                 $("#msgErroGeral").html(response.message).show();
@@ -315,6 +314,7 @@ function validateEvento() {
             $("#btnValidateEvento").prop("disabled", false);
         }
     });
+    
 }
 
 
