@@ -127,15 +127,22 @@ function toggleAprovador() {
 $(document).ready(function () {
     // Popula os selects com os usuários já cadastrados
     if (Array.isArray(window.users)) {
-        let options = '<option value="">Selecione...</option>';
-        window.users.filter(user => user.e_aprovador == 1)
-                    .forEach(user => {
-                        options += `<option value="${user.id}">${user.nome}</option>`;
-                    });
-        $("#aprovador_nome").html(options);
-        $("#responsavel_nome").html(options);
+        let optionsResponsavel = '<option value="">Selecione...</option>';
+        let optionsAprovador = '<option value="">Selecione...</option>';
+        
+        // Percorre todos os usuários uma vez
+        window.users.forEach(user => {
+            // Adiciona o usuário para o select de Responsável (todos)
+            optionsResponsavel += `<option value="${user.id}">${user.nome}</option>`;
+            
+            // Adiciona o usuário para o select de Aprovador, somente se e_aprovador for 1
+            if (user.e_aprovador == 1) {
+                optionsAprovador += `<option value="${user.id}">${user.nome}</option>`;
+            }
+        });
+        $("#responsavel_nome").html(optionsResponsavel);
+        $("#aprovador_nome").html(optionsAprovador);
     }
-    
     
     // Inicializa os checkboxes de responsável como desmarcados e define o modo interno
     $("#eu_sou_o_responsavel, #responsavel_externo").prop("checked", false);

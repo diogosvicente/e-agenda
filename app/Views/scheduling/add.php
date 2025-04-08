@@ -155,7 +155,7 @@
                                     <label for="responsavel_nome" class="form-label">Nome: *</label>
                                     <select name="responsavel_nome" id="responsavel_nome" class="form-control" required onchange="fillResponsavelDetails()">
                                         <option value="">Selecione o responsável</option>
-                                        <?php if(isset($users) && is_array($users)): ?>
+                                        <?php if(isset($users)): ?>
                                             <?php foreach($users as $user): ?>
                                                 <option value="<?php echo $user['id']; ?>" <?php echo (isset($registro->responsavel_nome) && $registro->responsavel_nome == $user['nome']) ? 'selected' : ''; ?>>
                                                     <?php echo $user['nome']; ?>
