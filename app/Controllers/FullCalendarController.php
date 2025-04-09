@@ -15,6 +15,7 @@ class FullCalendarController extends ResourceController
     {
         $this->campusModel = new CampusModel();
         $this->eventoModel = new EventoModel();
+        helper('sso');
     }
 
     public function index()
@@ -22,11 +23,16 @@ class FullCalendarController extends ResourceController
         $this->idSistema = getenv('SISTEMA_ID');
         $this->ssoBaseUrl = getenv('SSO_BASE_URL');
         $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
+        $eventList = $this->eventoModel->getEventos();
+        $TUDO = $this->eventoModel->findAll();
+
+        // echo "<pre>"; dd(print_r($eventList));
 
         return view('calendar/index', [
             'idSistema'     => $this->idSistema,
             'ssoBaseUrl'    => $this->ssoBaseUrl,
-            'userInfo'      => $this->userInfo
+            'userInfo'      => $this->userInfo,
+            'eventList'     => $eventList
         ]);
     }
 
@@ -60,13 +66,18 @@ class FullCalendarController extends ResourceController
             }
         }
 
-        $eventos = $this->eventoModel->getEventosWithEspacos();
+        $eventos = $this->eventoModel->getEventosWithEspacosAndPredios();
         $events = [];
 
         foreach ($eventos as $evento) {
+            // Se o evento possui id de espaço, utiliza-o; caso contrário, utiliza o id do prédio
+            $resourceId = !empty($evento->resource_id) 
+                ? 'espaco_' . $evento->resource_id 
+                : 'predio_' . $evento->predio_id;
+
             $events[] = [
                 'id' => 'evento_' . $evento->evento_id,
-                'resourceId' => 'espaco_' . $evento->resource_id,
+                'resourceId' => $resourceId,
                 'start' => $evento->start,
                 'end' => $evento->end,
                 'title' => $evento->evento_nome
@@ -78,4 +89,5 @@ class FullCalendarController extends ResourceController
             'events' => $events
         ]);
     }
+
 }

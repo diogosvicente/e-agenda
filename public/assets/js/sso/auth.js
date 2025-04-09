@@ -5,7 +5,7 @@ const ID_SISTEMA = document.querySelector('meta[name="id-sistema"]').getAttribut
 const JWT_TOKEN = document.querySelector('meta[name="jwt-token"]').getAttribute('content');
 
 $(document).ready(function() {
-    getUserInfo();
+    // getUserInfo();
     $("#formLoginSSO").submit(function(event) {
         event.preventDefault(); // Impede o envio tradicional do formulário
         
@@ -156,34 +156,34 @@ function logout() {
     });
 }
 
-function getUserInfo() {
-    const jwtToken = localStorage.getItem("jwt_token");
+// function getUserInfo() {
+//     const jwtToken = localStorage.getItem("jwt_token");
 
-    if (!jwtToken) {
-        console.warn("Nenhum token encontrado, usuário não autenticado.");
-        return;
-    }
+//     if (!jwtToken) {
+//         console.warn("Nenhum token encontrado, usuário não autenticado.");
+//         return;
+//     }
 
-    $.ajax({
-        url: SSO_BASE_URL + "/api/userinfo",
-        type: "GET",
-        headers: {
-            "Authorization": "Bearer " + jwtToken,
-            "Content-Type": "application/json"
-        },
-        success: function (data) {
-            if (!data.error) {
-                console.log("Usuário autenticado:", data);
-                atualizarInterfaceUsuario(data);
-            } else {
-                console.warn("Erro ao obter informações do usuário:", data.message);
-            }
-        },
-        error: function (xhr) {
-            console.error("Erro na requisição de informações do usuário:", xhr.responseText);
-        }
-    });
-}
+//     $.ajax({
+//         url: SSO_BASE_URL + "/api/userinfo",
+//         type: "GET",
+//         headers: {
+//             "Authorization": "Bearer " + jwtToken,
+//             "Content-Type": "application/json"
+//         },
+//         success: function (data) {
+//             if (!data.error) {
+//                 console.log("Usuário autenticado:", data);
+//                 atualizarInterfaceUsuario(data);
+//             } else {
+//                 console.warn("Erro ao obter informações do usuário:", data.message);
+//             }
+//         },
+//         error: function (xhr) {
+//             console.error("Erro na requisição de informações do usuário:", xhr.responseText);
+//         }
+//     });
+// }
 
 function atualizarInterfaceUsuario(userData) {
     $("#usuario-nome").text(userData.nome);

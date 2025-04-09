@@ -50,7 +50,7 @@ if (!function_exists('enviar_email_aprovador')) {
                               ?? '[Nome da Unidade]';
 
         // Dados do responsável
-        if ($eventoInfo['id_responsavel'] == 0) {
+        if (empty($eventoInfo['id_responsavel'])) {
             // Responsável informado manualmente
             $nomeResponsavel    = $eventoInfo['nome_responsavel'] ?? '[Nome do Responsável]';
             $unidadeResponsavel = $eventoInfo['nome_unidade_responsavel'] ?? '[Unidade/Departamento]';
@@ -66,6 +66,19 @@ if (!function_exists('enviar_email_aprovador')) {
                           ?? '[Nome do Aprovador]';
         $unidadeAprovador = tradeNameByID($eventoInfo['id_unidade_aprovador'], 'unidades', 'nome') 
                           ?? '[Unidade/Departamento do Aprovador]';
+
+        $nomes = array(
+            trim($nomeSolicitante),
+            trim($nomeResponsavel),
+            trim($nomeAprovador)
+        );
+        $nomesUnicos = array_unique($nomes);
+        
+        // Monta a saudação com os nomes em linhas separadas
+        $saudacao = "<p>Prezados(as):</p>";
+        foreach ($nomesUnicos as $nome) {
+            $saudacao .= "<p>" . htmlspecialchars($nome) . "</p>";
+        }
 
         // Monta a lista de espaços e horários
         $espacosInfo = "";
@@ -115,7 +128,7 @@ if (!function_exists('enviar_email_aprovador')) {
         <body style='font-family: Arial, sans-serif; color: #333;'>
             <p><strong>Assunto: Confirmação de Solicitação de Agendamento</strong></p>
             <br>
-            <p>Prezado(a) <strong>" . htmlspecialchars($nomeSolicitante) . "</strong>,</p>
+            {$saudacao}
             <p>Sua solicitação de agendamento de espaço físico foi registrada com sucesso e aguarda autorização. Abaixo estão os detalhes informados no formulário:</p>
             <h4>Detalhes da Solicitação:</h4>
             <ul>
@@ -133,7 +146,7 @@ if (!function_exists('enviar_email_aprovador')) {
             <h4>Recurso(s) Solicitado(s):</h4>
             " . $recursosInfo . "
             
-            <p>A solicitação de agendamento está agora em análise pela Direção da sua unidade, que poderá autorizar, negar ou editar o pedido por meio do link abaixo. Assim que houver uma decisão, você será notificado(a) por e-mail sobre a conclusão do processo e os dados serão encaminhados para o setor responsável pelo agendamento do espaço físico.</p>
+            <p>A solicitação de agendamento está agora em análise pela Direção da sua unidade <strong>" . htmlspecialchars($nomeAprovador) . "</strong>, que poderá autorizar, negar ou editar o pedido por meio do link abaixo. Assim que houver uma decisão, você será notificado(a) por e-mail sobre a conclusão do processo e os dados serão encaminhados para o setor responsável pelo agendamento do espaço físico.</p>
             
             <p><a href='" . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . "' style='color: #0056b3; text-decoration: none; font-weight: bold;'>Clique aqui para acessar a solicitação</a></p>
             
@@ -185,6 +198,6 @@ if (!function_exists('enviar_email_aprovador')) {
         $emailService->setMessage($message);
         $emailService->setMailType('html');
 
-        return $emailService->send();
+        // return $emailService->send();
     }
 }

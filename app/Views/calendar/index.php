@@ -1,8 +1,8 @@
 <?php $this->extend('template/base'); ?>
 <?php $this->section('content'); ?>
-
+<link rel="stylesheet" href="<?php echo base_url('public/assets/css/fullCalendar/style.css'); ?>">
 <script src="<?php echo base_url('public/assets/vendor/fullcalendar-scheduler-6.1.15/dist/index.global.js'); ?>"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> <!-- Adicionando jQuery -->
+
 
 <script>
   $(document).ready(function () {
@@ -12,9 +12,7 @@
 
     $.getJSON("<?php echo base_url('calendario/data'); ?>", function (data) {
 
-      console.log(data);
-      
-      // 🔹 Criar um mapa de espaços para buscas rápidas
+      // Cria um mapa de espaços para buscas rápidas
       let espacosMap = {};
       data.resources.forEach(predio => {
           if (predio.children) {
@@ -58,21 +56,17 @@
         events: data.events,
         resourceOrder: false,
 
-        // Evento de clique no evento
+        // Clique no evento: exibe os detalhes no modal Bootstrap
         eventClick: function (info) {
           let evento = info.event;
           let resourceId = evento.getResources()[0]?.id || "Desconhecido"; 
-
-          // 🔹 Busca instantânea no mapa de espaços (O(1) complexidade)
           let espacoNome = espacosMap[resourceId] || "Não encontrado";
 
-          // Preenche os dados no modal
           $("#eventTitle").text(evento.title);
           $("#eventStart").text(evento.start.toLocaleString());
           $("#eventEnd").text(evento.end ? evento.end.toLocaleString() : "Não definido");
           $("#eventResource").text(espacoNome);
 
-          // Exibe o modal Bootstrap
           $("#eventModal").modal("show");
         }
       });
@@ -80,37 +74,112 @@
       calendar.render();
     });
 
-    // Função para ativar modo tela cheia
+    // Ativa o modo tela cheia
     $("#fullScreenBtn").on("click", function () {
       $("#calendarContainer").addClass("full-screen");
-      $("#exitFullScreenBtn").fadeIn(); // 🔹 Mostra suavemente o botão de saída
+      $("#exitFullScreenBtn").fadeIn();
     });
 
-    // Função para sair do modo tela cheia
+    // Sai do modo tela cheia
     $("#exitFullScreenBtn").on("click", function () {
       $("#calendarContainer").removeClass("full-screen");
-      $("#exitFullScreenBtn").fadeOut(); // 🔹 Esconde suavemente o botão de saída
+      $("#exitFullScreenBtn").fadeOut();
     });
-
   });
 </script>
 
-<!-- Botões de controle -->
-<div class="button-container">
-  <button id="fullScreenBtn" class="btn btn-primary"><i class="fa fa-expand"></i></button>
-  <a href="<?php echo base_url('agendamento/novo'); ?>">
-    <button class="btn btn-primary">Fazer Agendamento</button>
-  </a>
-</div>
+<!-- Estrutura dos Accordions -->
+<div class="container mt-3">
 
-<!-- Botão para sair da tela cheia (aparece somente quando estiver em tela cheia) -->
-<button id="exitFullScreenBtn" class="exit-fullscreen">
-    <i class="fa fa-compress"></i> <!-- Ícone de saída -->
-</button>
+  <div class="accordion" id="accordionExample">
+    <!-- Accordion do Calendário -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingCalendar">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCalendar" aria-expanded="true" aria-controls="collapseCalendar">
+          Calendário de Agendamentos
+        </button>
+      </h2>
+      <div id="collapseCalendar" class="accordion-collapse collapse show" aria-labelledby="headingCalendar" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <!-- Botões de controle -->
+          <div class="button-container">
+            <button id="fullScreenBtn" class="btn btn-primary"><i class="fa fa-expand"></i></button>
+            <a href="<?php echo base_url('agendamento/novo'); ?>">
+              <button class="btn btn-primary">Fazer Agendamento</button>
+            </a>
+          </div>
+          <!-- Botão para sair da tela cheia -->
+          <button id="exitFullScreenBtn" class="exit-fullscreen">
+              <i class="fa fa-compress"></i>
+          </button>
+          <!-- Container do calendário -->
+          <div id="calendarContainer">
+            <div id="calendar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<!-- Container do calendário -->
-<div id="calendarContainer">
-  <div id="calendar"></div>
+    <!-- Accordion da Tabela -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingTable">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTable" aria-expanded="false" aria-controls="collapseTable">
+          Solicitações
+        </button>
+      </h2>
+      <div id="collapseTable" class="accordion-collapse collapse" aria-labelledby="headingTable" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          
+        <table id="listaEventos" class="display" style="width:100%;">
+          <thead>
+            <tr>
+              <th scope="col">data</th>
+              <th scope="col">Nome</th>
+              <th scope="col">Departamento</th>
+              <th scope="col">Data Solicitação</th>
+              <th scope="col">Status</th>
+              <th scope="col">Detalhes</th>
+            </tr>
+          </thead>
+            <tbody>
+            <?php foreach ($eventList as $evento): ?>
+              <tr>
+                <td scope="col"><?php echo $evento->created_at; ?></td>
+                <td scope="col"><?php echo $evento->evento_nome; ?></td>
+                <td scope="col"><?php echo tradeNameByID($evento->id_unidade_solicitante, 'unidades', 'nome'); ?></td>
+                <td scope="col"><?php echo date("d/m/Y à\s h:i", strtotime($evento->created_at)); ?></td>
+                <td scope="col"><?php echo $evento->nome_status; ?></td>
+                <td scope="col"> <!-- style="padding-left: 0 !important;" -->
+                  <a href="<?php echo base_url('agendamento/acompanhamento/' . $evento->token); ?>"
+                    class="btn btn-primary" target="_blank" rel="noopener noreferrer">Exibir</a>
+                </td>
+              </tr>
+            <?php endforeach ?>
+          </tbody>
+        </table>
+
+        <script type="text/javascript">
+          $(document).ready(function () {
+            $('#listaEventos').DataTable({
+              language: { url: '<?php echo base_url('public/assets/vendor/datatables/pt-BR.json'); ?>' },
+              responsive: true,
+              lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todos']],
+              order: [0, 'desc'],
+              columnDefs: [
+                {
+                  targets: [0],
+                  visible: false
+                }
+              ],
+            });
+          });
+        </script>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Modal Bootstrap para exibir detalhes do evento -->
@@ -133,81 +202,5 @@
     </div>
   </div>
 </div>
-
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 14px;
-  }
-
-  #calendar {
-    max-width: 1100px;
-    margin: 50px auto;
-  }
-
-  .button-container {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .button-container button, .button-container a {
-    margin: 5px;
-  }
-
-  /* Estilos para o modo tela cheia */
-  #calendarContainer {
-    transition: all 0.3s ease-in-out;
-  }
-
-  .full-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: white;
-    z-index: 1000;
-    padding: 10px;
-  }
-
-  .full-screen #calendar {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    margin: 0;
-  }
-
-  /* Botão "Sair da Tela Cheia" - flutuante e moderno */
-  .exit-fullscreen {
-      display: none; /* 🔹 Inicialmente oculto */
-      position: fixed;
-      bottom: 20px; /* 🔹 Canto inferior direito */
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background-color: rgba(255, 0, 0, 0.8);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1100;
-      transition: all 0.3s ease-in-out;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  }
-
-  .exit-fullscreen:hover {
-      background-color: red;
-  }
-
-  .exit-fullscreen i {
-      font-size: 24px;
-  }
-</style>
 
 <?php $this->endSection(); ?>

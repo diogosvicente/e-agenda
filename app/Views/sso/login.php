@@ -45,7 +45,7 @@
                         <a href="#" class="bi-info-circle-fill"
                             data-bs-trigger="click"
                             data-bs-toggle="popover"
-                            data-bs-content="Utilize seu CPF registrado no ID e-Prefeitura">
+                            data-bs-content="Utilize seu CPF para realizar o login">
                         </a>
                     </label>
                     <input type="text" name="cpf" id="cpf" class="form-control mask-cpf" placeholder="Digite seu CPF" autocomplete="off" required value="12192209738" />
@@ -76,5 +76,7 @@
 <div id="divLoading" class="text-center mt-3" style="display: none;">
     <span class="spinner-border text-primary"></span> Autenticando...
 </div>
+
+<script src="<?php echo base_url('public/assets/js/login/login.js'); ?>"></script>
 
 <?php $this->endSection(); ?>

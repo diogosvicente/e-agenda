@@ -13,7 +13,8 @@ $(document).ready(function () {
     });
 
     $("#passwordEye").click(function () {
-        exibeSenha($("#password"), $(this));
+        console.log("cliquei!");
+        exibeSenha($("#senha"), $(this));
     });
 
 });
