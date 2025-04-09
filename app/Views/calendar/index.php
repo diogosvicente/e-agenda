@@ -35,7 +35,7 @@
         headerToolbar: {
           left: 'today prev,next',
           center: 'title',
-          right: 'resourceTimelineDay,resourceTimelineThreeDays,resourceTimelineWeek,resourceTimelineMonth,resourceTimelineYear,listWeek'
+          right: 'resourceTimelineDay,resourceTimelineMonth,listWeek'
         },
         buttonText: {
           today: 'Hoje',
@@ -46,12 +46,9 @@
           year: 'Ano'
         },
         views: {
-          resourceTimelineThreeDays: { type: 'resourceTimeline', duration: { days: 3 }, buttonText: '3 Dias' },
-          resourceTimelineWeek: { type: 'resourceTimeline', duration: { weeks: 1 }, buttonText: 'Semana' },
           resourceTimelineMonth: { type: 'resourceTimeline', duration: { months: 1 }, buttonText: 'Mês' },
-          resourceTimelineYear: { type: 'resourceTimeline', duration: { years: 1 }, buttonText: 'Ano' }
         },
-        resourceGroupField: 'building',
+        resourceGroupField: '',
         resources: data.resources,
         events: data.events,
         resourceOrder: false,
