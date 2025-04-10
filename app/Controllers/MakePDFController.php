@@ -33,6 +33,7 @@ class MakePDFController extends BaseController
 
     public function __construct()
     {
+        helper(['email', 'evento_format']);
         $this->campusModel                  = new CampusModel();
         $this->predioModel                  = new PredioModel();
         $this->espacoModel                  = new EspacosModel();
@@ -48,9 +49,8 @@ class MakePDFController extends BaseController
         $this->ssoBaseUrl = getenv('SSO_BASE_URL');
 
         // Obtém os dados do usuário via helper (definido, por exemplo, em auth_helper.php)
-        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
+        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo(getSystemId()) : null;
 
-        helper(['email_helper', 'evento_format_helper']);
         require_once ROOTPATH . '/vendor/autoload.php';
     }
 

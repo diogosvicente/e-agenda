@@ -128,3 +128,44 @@ if (!function_exists('tradeNameByID')) {
         return null;
     }
 }
+
+if (!function_exists('getSystemId')) {
+    /**
+     * Obtém o ID do sistema atual a partir do endpoint /api/getSystemID do SSO.
+     * Esse endpoint compara a URL base do sistema filho (obtida via base_url()) com a coluna url dos sistemas.
+     *
+     * @return int|null Retorna o ID do sistema ou null em caso de erro.
+     */
+    function getSystemId()
+    {
+        if (!isset($_COOKIE['jwt_token']) || empty($_COOKIE['jwt_token'])) {
+            return null;
+        }
+        
+        $jwtToken = $_COOKIE['jwt_token'];
+        $ssoBaseUrl = getenv('SSO_BASE_URL');
+        
+        $childBaseUrl = base_url();
+        $normalizedUrl = rtrim($childBaseUrl, '/') . '/';
+        $endpoint = $ssoBaseUrl . "/api/getSystemIDbyUrl?base_url=" . urlencode($normalizedUrl);
+        
+        $client = \Config\Services::curlrequest();
+        try {
+            $response = $client->get($endpoint, [
+                'headers' => [
+                    'Authorization' => "Bearer " . $jwtToken,
+                    'Accept'        => 'application/json'
+                    ]
+                ]);
+            
+            $data = json_decode($response->getBody(), true);
+            if (isset($data['error']) && $data['error'] === false && isset($data['id_sistema'])) {
+                return $data['id_sistema'];
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Erro ao obter ID do sistema: ' . $e->getMessage());
+        }
+        
+        return null;
+    }
+}

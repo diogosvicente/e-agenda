@@ -59,9 +59,41 @@ class EventoModel extends Model
      */
     public function getEventos()
     {
-        return $this->select('
+        $this->select('
+            eventos.id AS evento_id,
+            eventos.nome AS evento_nome,
+            eventos.created_at,
+            eventos.id_solicitante,
+            eventos.id_unidade_solicitante,
+            evento_verificacao.token,
+            evento_status.id_status AS evento_status,
+            evento_status.id_usuario AS usuario_status,
+            evento_status.observacoes AS status_observacoes,
+            status_definicao.nome AS nome_status
+        ');
+        
+        $this->join('evento_verificacao', 'evento_verificacao.id_evento = eventos.id');
+        $this->join('evento_status', 'evento_status.id_evento = eventos.id');
+        $this->join('status_definicao', 'evento_status.id_status = status_definicao.id');
+        
+        // Restringe os registros de evento_status para aquele com o maior created_at para cada evento
+        $this->where("evento_status.created_at = (
+                    SELECT MAX(es2.created_at) 
+                    FROM evento_status AS es2 
+                    WHERE es2.id_evento = eventos.id
+                )", null, false);
+        
+        return $this->findAll();
+    }
+
+
+    public function getEventosPorUsuario($id_usuario)
+    {
+        $this->select('
+                eventos.id AS evento_id,
                 eventos.nome AS evento_nome,
                 eventos.created_at,
+                eventos.id_solicitante,
                 eventos.id_unidade_solicitante,
                 evento_verificacao.token,
                 evento_status.id_status AS evento_status,
@@ -72,6 +104,13 @@ class EventoModel extends Model
             ->join('evento_verificacao', 'evento_verificacao.id_evento = eventos.id')
             ->join('evento_status', 'evento_status.id_evento = eventos.id')
             ->join('status_definicao', 'evento_status.id_status = status_definicao.id')
-            ->findAll();
+            ->where('eventos.id_solicitante', $id_usuario)
+            ->where("evento_status.created_at = (
+                    SELECT MAX(es2.created_at)
+                    FROM evento_status AS es2
+                    WHERE es2.id_evento = eventos.id
+                )", null, false);
+        
+        return $this->findAll();
     }
 }

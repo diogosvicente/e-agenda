@@ -5,7 +5,7 @@ const ID_SISTEMA = document.querySelector('meta[name="id-sistema"]').getAttribut
 const JWT_TOKEN = document.querySelector('meta[name="jwt-token"]').getAttribute('content');
 
 $(document).ready(function() {
-    // getUserInfo();
+    // getUserInfo(getSystemId());
     $("#formLoginSSO").submit(function(event) {
         event.preventDefault(); // Impede o envio tradicional do formulário
         
@@ -156,7 +156,7 @@ function logout() {
     });
 }
 
-// function getUserInfo() {
+// function getUserInfo(getSystemId()) {
 //     const jwtToken = localStorage.getItem("jwt_token");
 
 //     if (!jwtToken) {

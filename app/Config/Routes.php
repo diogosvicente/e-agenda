@@ -34,6 +34,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('aprovar/(:segment)', 'SchedulingController::approve/$1');
         $routes->post('confirmar_aprovacao', 'SchedulingController::confirm_approval');
         $routes->get('acompanhamento/(:segment)', 'SchedulingController::followUp/$1');
+        $routes->post('atualizarStatus', 'SchedulingController::updateStatus');
     });
 
     // Grupo de rotas para Recursos

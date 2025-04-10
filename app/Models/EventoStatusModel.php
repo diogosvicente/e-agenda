@@ -46,4 +46,17 @@ class EventoStatusModel extends Model
         $builder->orderBy('status_definicao.ordem', 'ASC');
         return $builder->get()->getResult();
     }
+
+    public function getUltimoStatusByEvento(int $idEvento)
+    {
+        $builder = $this->builder();
+        $builder->select('evento_status.*, status_definicao.nome AS status_nome, status_definicao.descricao AS status_descricao, status_definicao.ordem AS status_ordem');
+        $builder->join('status_definicao', 'evento_status.id_status = status_definicao.id', 'left');
+        $builder->where('evento_status.id_evento', $idEvento);
+        // Ordena de forma decrescente para que o primeiro registro seja o último inserido
+        $builder->orderBy('evento_status.created_at', 'DESC');
+        
+        return $builder->get()->getRow();
+    }
+
 }

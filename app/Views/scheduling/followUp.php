@@ -11,14 +11,12 @@
     <div class="card shadow-sm">
         <div class="card-header d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
             <div>
-                <?php if (isset($evento) && !empty($evento)): ?>
-                    <span class="text-muted">Evento: <strong><?= esc($evento->nome) ?></strong></span>
+                <?php if(isset($evento) && !empty($evento)): ?>
+                    <span class="text-muted">Evento: <strong><?= esc($evento->nome); ?></strong></span>
                 <?php endif; ?>
             </div>
             <div class="mt-3 mt-md-0">
-                <a href="<?= base_url('pdf/acompanhar/' . esc($token)) ?>" 
-                   target="_blank" rel="noopener noreferrer" 
-                   class="btn btn-primary">
+                <a href="<?= base_url('pdf/acompanhar/'.esc($token)); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
                     Visualizar PDF do Evento
                 </a>
             </div>
@@ -26,16 +24,12 @@
         <div class="card-body">
             <!-- Progress Tracker Dinâmico -->
             <?php
-
-            // O status atual será o de maior ordem registrado, ou 0 se nenhum registro existir.
-            $ordemAtual = 0;
-            if (!empty($historicoStatus)) {
-                $ultimo = end($historicoStatus);
-                // Supondo que cada registro do histórico possui o campo "status_ordem"
-                $ordemAtual = isset($ultimo->status_ordem) ? (int)$ultimo->status_ordem : 0;
-            }
+                // O status atual a ser destacado é sempre aquele do último registro inserido
+                $ordemAtual = 0;
+                if (isset($ultimoStatus) && !empty($ultimoStatus)) {
+                    $ordemAtual = (int)$ultimoStatus->status_ordem;
+                }
             ?>
-
             <div class="progress-track">
                 <?php foreach ($statusPossiveis as $status): 
                     if ($status->ordem < $ordemAtual) {
@@ -46,10 +40,10 @@
                         $classe = 'pending';
                     }
                 ?>
-                <div class="step <?= $classe ?>">
+                <div class="step <?= $classe; ?>">
                     <div class="step-icon">
                         <?php
-                        // Escolha um ícone baseado no id ou nome do status
+                        // Escolha os ícones conforme a lógica do seu sistema
                         switch ($status->id) {
                             case 1:
                                 echo '<i class="bi bi-pencil-fill"></i>';
@@ -76,14 +70,16 @@
                         ?>
                     </div>
                     <div class="step-label">
-                        <h5><?= ucfirst($status->nome) ?></h5>
-                        <p><?= $status->descricao ?></p>
+                        <h5><?= ucfirst($status->nome); ?></h5>
+                        <p><?= $status->descricao; ?></p>
                     </div>
                 </div>
                 <?php endforeach; ?>
             </div>
+            <!-- Fim do Progress Tracker -->
         </div>
     </div>
 </div>
 
+<!-- Restante do conteúdo da view (como calendários, tabelas de solicitações, etc.) -->
 <?php $this->endSection(); ?>

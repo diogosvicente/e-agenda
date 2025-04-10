@@ -14,7 +14,7 @@ class HomeController extends BaseController
 	{
         $this->idSistema = getenv('SISTEMA_ID');
         $this->ssoBaseUrl = getenv('SSO_BASE_URL');
-        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
+        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo(getSystemId()) : null;
 	}
 
     public function index()

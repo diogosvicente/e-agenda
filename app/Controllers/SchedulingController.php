@@ -34,6 +34,7 @@ class SchedulingController extends BaseController
 
     public function __construct()
     {
+        helper(['url', 'email', 'evento_format', 'evento_verificacao']);
         $this->campusModel                  = new CampusModel();
         $this->predioModel                  = new PredioModel();
         $this->espacoModel                  = new EspacosModel();
@@ -50,9 +51,8 @@ class SchedulingController extends BaseController
         $this->ssoBaseUrl = getenv('SSO_BASE_URL');
 
         // Obtém os dados do usuário via helper (definido, por exemplo, em auth_helper.php)
-        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
+        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo(getSystemId()) : null;
 
-        helper(['url', 'email', 'evento_format', 'evento_verificacao']);
     }
 
     public function add()
@@ -428,7 +428,7 @@ class SchedulingController extends BaseController
     public function followUp($token)
     {
         $parts = explode('.', $token);
-        if(count($parts) !== 2){
+        if (count($parts) !== 2) {
             // Token inválido
             return view(
                 'errors/invalid_token',
@@ -443,7 +443,7 @@ class SchedulingController extends BaseController
         $eventoId = $parts[0];
 
         $registro = $this->eventoVerificacaoModel->obterTokenValido($token);
-        if(!$registro){
+        if (!$registro) {
             return view(
                 'errors/invalid_token',
                 [
@@ -455,17 +455,67 @@ class SchedulingController extends BaseController
         }
 
         $evento = $this->eventoModel->find($eventoId);
-
         $statusPossiveis = $this->statusDefinicaoModel->getAllOrdered();
         $historicoStatus = $this->eventoStatusModel->getStatusByEvento($eventoId);
+        $ultimoStatus = $this->eventoStatusModel->getUltimoStatusByEvento($eventoId);
 
         return view('scheduling/followUp', [
             'evento'            => $evento,
             'token'             => $token,
             'statusPossiveis'   => $statusPossiveis,
             'historicoStatus'   => $historicoStatus,
+            'ultimoStatus'      => $ultimoStatus,
             'ssoBaseUrl'        => $this->ssoBaseUrl,
             'idSistema'         => $this->idSistema,
         ]);
     }
+
+    public function updateStatus()
+    {
+        // Verifica se a requisição é AJAX
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        // Obtém os dados enviados pelo POST
+        $idEvento = $this->request->getPost('id_evento');
+        $idStatus = $this->request->getPost('id_status');
+
+        // Recupera o ID do usuário logado a partir da sessão
+        $idUsuario = $this->userInfo['id_usuario'];
+
+        // Validação simples dos parâmetros
+        if (empty($idEvento) || empty($idStatus) || empty($idUsuario)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Parâmetros inválidos'
+            ]);
+        }
+
+        // Prepara os dados para inserção, incluindo observações caso necessário
+        $data = [
+            'id_evento'   => $idEvento,
+            'id_status'   => $idStatus,
+            'id_usuario'  => $idUsuario,
+            'observacoes' => NULL,
+            'observacoes' => $this->request->getPost('observacoes') ?? ''
+        ];
+
+        $insertedId = $this->eventoStatusModel->insert($data);
+
+        // Retorna a resposta em formato JSON de acordo com o sucesso ou erro da operação
+        if ($insertedId) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Status atualizado com sucesso',
+                'inserted_id' => $insertedId
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Erro ao atualizar o status'
+            ], 500);
+        }
+    }
+
 }

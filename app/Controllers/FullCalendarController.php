@@ -4,35 +4,48 @@ namespace App\Controllers;
 
 use App\Models\CampusModel;
 use App\Models\EventoModel;
+use App\Models\StatusDefinicaoModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class FullCalendarController extends ResourceController
 {
     protected $campusModel;
     protected $eventoModel;
+    protected $statusDefinicaoModel;
+    protected $idSistema;
+    protected $ssoBaseUrl;
+    protected $userInfo;
 
     public function __construct()
     {
+        helper('sso');
         $this->campusModel = new CampusModel();
         $this->eventoModel = new EventoModel();
-        helper('sso');
+        $this->statusDefinicaoModel = new StatusDefinicaoModel();
+        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo(getSystemId()) : null;
     }
-
+    
     public function index()
     {
-        $this->idSistema = getenv('SISTEMA_ID');
         $this->ssoBaseUrl = getenv('SSO_BASE_URL');
-        $this->userInfo = (isset($_COOKIE['jwt_token']) && !empty($_COOKIE['jwt_token'])) ? getUserInfo() : null;
-        $eventList = $this->eventoModel->getEventos();
-        $TUDO = $this->eventoModel->findAll();
+        $userInfo = $this->userInfo;
+        $statusList = $this->statusDefinicaoModel->getAllOrdered();
+        
+        if ($userInfo['id_nivel'] == 3) {
+            $eventList = $this->eventoModel->getEventosPorUsuario($userInfo['id_nivel'] == 3);
+        } else {
+            $eventList = $this->eventoModel->getEventos();
+        }
 
         // echo "<pre>"; dd(print_r($eventList));
+        // echo "<pre>"; dd(print_r($this->userInfo));
 
         return view('calendar/index', [
-            'idSistema'     => $this->idSistema,
+            'idSistema'     => getSystemId(),
             'ssoBaseUrl'    => $this->ssoBaseUrl,
-            'userInfo'      => $this->userInfo,
-            'eventList'     => $eventList
+            'userInfo'      => $userInfo,
+            'eventList'     => $eventList,
+            'statusList'    => $statusList
         ]);
     }
 

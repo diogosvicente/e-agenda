@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="<?php echo base_url('public/assets/css/fullCalendar/style.css'); ?>">
 <script src="<?php echo base_url('public/assets/vendor/fullcalendar-scheduler-6.1.15/dist/index.global.js'); ?>"></script>
 
+<?php //echo "<pre>"; dd(print_r($eventList)); ?>
 
 <script>
   $(document).ready(function () {
@@ -127,54 +128,86 @@
       <div id="collapseTable" class="accordion-collapse collapse" aria-labelledby="headingTable" data-bs-parent="#accordionExample">
         <div class="accordion-body">
           
-        <table id="listaEventos" class="display" style="width:100%;">
-          <thead>
-            <tr>
-              <th scope="col">data</th>
-              <th scope="col">Nome</th>
-              <th scope="col">Departamento</th>
-              <th scope="col">Data Solicitação</th>
-              <th scope="col">Status</th>
-              <th scope="col">Detalhes</th>
-            </tr>
-          </thead>
-            <tbody>
-            <?php foreach ($eventList as $evento): ?>
+          <table id="listaEventos" class="display" style="width:100%;">
+            <thead>
               <tr>
-                <td scope="col"><?php echo $evento->created_at; ?></td>
-                <td scope="col"><?php echo $evento->evento_nome; ?></td>
-                <td scope="col"><?php echo tradeNameByID($evento->id_unidade_solicitante, 'unidades', 'nome'); ?></td>
-                <td scope="col"><?php echo date("d/m/Y à\s h:i", strtotime($evento->created_at)); ?></td>
-                <td scope="col"><?php echo $evento->nome_status; ?></td>
-                <td scope="col"> <!-- style="padding-left: 0 !important;" -->
-                  <a href="<?php echo base_url('agendamento/acompanhamento/' . $evento->token); ?>"
-                    class="btn btn-primary" target="_blank" rel="noopener noreferrer">Exibir</a>
-                </td>
+                <th scope="col">Data</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Departamento</th>
+                <th scope="col">Data Solicitação</th>
+                <th scope="col">Status</th>
+                <th scope="col">Detalhes</th>
               </tr>
-            <?php endforeach ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php foreach ($eventList as $evento): ?>
+                <tr>
+                  <td scope="col"><?php echo $evento->created_at; ?></td>
+                  <td scope="col"><?php echo $evento->evento_nome; ?></td>
+                  <td scope="col"><?php echo tradeNameByID($evento->id_unidade_solicitante, 'unidades', 'nome'); ?></td>
+                  <td scope="col"><?php echo date("d/m/Y à\s h:i", strtotime($evento->created_at)); ?></td>
+                  <td scope="col">
+                    <select class="status-select" data-evento-id="<?php echo $evento->evento_id; ?>">
+                      <?php foreach ($statusList as $status): ?>
+                        <option value="<?php echo $status->id; ?>" <?php echo ($status->id == $evento->evento_status ? 'selected' : ''); ?>>
+                          <?php echo $status->nome; ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                  </td>
+                  <td scope="col">
+                    <a href="<?php echo base_url('agendamento/acompanhamento/' . $evento->token); ?>"
+                      class="btn btn-primary" target="_blank" rel="noopener noreferrer">Exibir</a>
+                  </td>
+                </tr>
+              <?php endforeach ?>
+            </tbody>
+          </table>
 
-        <script type="text/javascript">
-          $(document).ready(function () {
-            $('#listaEventos').DataTable({
-              language: { url: '<?php echo base_url('public/assets/vendor/datatables/pt-BR.json'); ?>' },
-              responsive: true,
-              lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todos']],
-              order: [0, 'desc'],
-              columnDefs: [
-                {
-                  targets: [0],
-                  visible: false
-                }
-              ],
+          <script type="text/javascript">
+            $(document).ready(function () {
+              $('#listaEventos').DataTable({
+                language: { url: '<?php echo base_url('public/assets/vendor/datatables/pt-BR.json'); ?>' },
+                responsive: true,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todos']],
+                order: [0, 'desc'],
+                columnDefs: [
+                  {
+                    targets: [0],
+                    visible: false
+                  }
+                ],
+              });
+
+              // Captura a alteração de status e envia via AJAX para atualizar o registro.
+              $('.status-select').change(function(){
+                var novoStatus = $(this).val();
+                var idEvento = $(this).data('evento-id');
+                
+                $.ajax({
+                  url: '<?php echo base_url("agendamento/atualizarStatus"); ?>',
+                  method: 'POST',
+                  data: {
+                    id_evento: idEvento,
+                    id_status: novoStatus
+                  },
+                  success: function(response){
+                    // Opcional: exibir uma notificação de sucesso ou atualizar a interface.
+                    console.log('Status atualizado com sucesso.');
+                  },
+                  error: function(){
+                    alert('Erro ao atualizar status.');
+                  }
+                });
+              });
             });
-          });
-        </script>
+          </script>
 
         </div>
       </div>
     </div>
+
+    
   </div>
 
 </div>
