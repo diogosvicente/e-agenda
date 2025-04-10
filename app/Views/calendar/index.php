@@ -2,6 +2,7 @@
 <?php $this->section('content'); ?>
 <link rel="stylesheet" href="<?php echo base_url('public/assets/css/fullCalendar/style.css'); ?>">
 <script src="<?php echo base_url('public/assets/vendor/fullcalendar-scheduler-6.1.15/dist/index.global.js'); ?>"></script>
+<script src="<?php echo base_url('public/assets/vendor/sweet-alert/sweetalert2@11.js'); ?>"></script>
 
 <?php //echo "<pre>"; dd(print_r($eventList)); ?>
 
@@ -147,7 +148,7 @@
                   <td scope="col"><?php echo tradeNameByID($evento->id_unidade_solicitante, 'unidades', 'nome'); ?></td>
                   <td scope="col"><?php echo date("d/m/Y à\s h:i", strtotime($evento->created_at)); ?></td>
                   <td scope="col">
-                    <select class="status-select" data-evento-id="<?php echo $evento->evento_id; ?>">
+                    <select class="status-select form-control" data-evento-id="<?php echo $evento->evento_id; ?>">
                       <?php foreach ($statusList as $status): ?>
                         <option value="<?php echo $status->id; ?>" <?php echo ($status->id == $evento->evento_status ? 'selected' : ''); ?>>
                           <?php echo $status->nome; ?>
@@ -179,29 +180,63 @@
                 ],
               });
 
-              // Captura a alteração de status e envia via AJAX para atualizar o registro.
+              // Armazena o valor anterior do select para poder reverter, se necessário.
+              $('.status-select').on('focus', function(){
+                $(this).data('previous', $(this).val());
+              });
+
+              // Captura a alteração de status e confirma a ação com um alerta bonito.
               $('.status-select').change(function(){
                 var novoStatus = $(this).val();
                 var idEvento = $(this).data('evento-id');
-                
-                $.ajax({
-                  url: '<?php echo base_url("agendamento/atualizarStatus"); ?>',
-                  method: 'POST',
-                  data: {
-                    id_evento: idEvento,
-                    id_status: novoStatus
-                  },
-                  success: function(response){
-                    // Opcional: exibir uma notificação de sucesso ou atualizar a interface.
-                    console.log('Status atualizado com sucesso.');
-                  },
-                  error: function(){
-                    alert('Erro ao atualizar status.');
+                var $select = $(this);
+
+                Swal.fire({
+                  title: "Confirmação",
+                  text: "Você tem certeza que deseja alterar o status?",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#3085d6",
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Sim, alterar!",
+                  cancelButtonText: "Cancelar"
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    $.ajax({
+                      url: '<?php echo base_url("agendamento/atualizarStatus"); ?>',
+                      method: 'POST',
+                      data: {
+                        id_evento: idEvento,
+                        id_status: novoStatus
+                      },
+                      success: function(response){
+                        Swal.fire({
+                          title: "Alterado!",
+                          text: "O status foi atualizado com sucesso.",
+                          icon: "success",
+                          timer: 1500,
+                          showConfirmButton: false
+                        });
+                      },
+                      error: function(){
+                        Swal.fire({
+                          title: "Erro!",
+                          text: "Erro ao atualizar o status.",
+                          icon: "error"
+                        });
+                        // Reverte o select ao valor anterior em caso de erro.
+                        $select.val($select.data('previous'));
+                      }
+                    });
+                  } else {
+                    // Se o usuário cancelar, reverte a seleção para o valor anterior.
+                    $select.val($select.data('previous'));
                   }
                 });
               });
             });
           </script>
+
 
         </div>
       </div>

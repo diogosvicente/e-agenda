@@ -37,9 +37,6 @@ class FullCalendarController extends ResourceController
             $eventList = $this->eventoModel->getEventos();
         }
 
-        // echo "<pre>"; dd(print_r($eventList));
-        // echo "<pre>"; dd(print_r($this->userInfo));
-
         return view('calendar/index', [
             'idSistema'     => getSystemId(),
             'ssoBaseUrl'    => $this->ssoBaseUrl,
