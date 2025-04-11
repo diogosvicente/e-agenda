@@ -111,7 +111,7 @@
 <!-- Estrutura dos Accordions -->
 <div class="container mt-3">
 
-  <div class="accordion" id="accordionExample">
+  <div class="accordion" id="accordionCalendar">
     <!-- Accordion do Calendário -->
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingCalendar">
@@ -119,11 +119,16 @@
           Calendário de Agendamentos
         </button>
       </h2>
-      <div id="collapseCalendar" class="accordion-collapse collapse show" aria-labelledby="headingCalendar" data-bs-parent="#accordionExample">
+      <div id="collapseCalendar" class="accordion-collapse collapse show" aria-labelledby="headingCalendar" data-bs-parent="#accordionCalendar">
         <div class="accordion-body">
+          <!-- Container do calendário -->
+          <div id="calendarContainer">
+            <div id="calendar"></div>
+          </div>
+
           <!-- Botões de controle -->
           <div class="button-container">
-            <button id="fullScreenBtn" class="btn btn-primary"><i class="fa fa-expand"></i></button>
+            <button id="fullScreenBtn" class="btn btn-primary"><i class="fa fa-expand"> Expandir/Recolher Calendário</i></button>
             <a href="<?php echo base_url('agendamento/novo'); ?>">
               <button class="btn btn-primary">Agendar Espaço</button>
             </a>
@@ -132,10 +137,6 @@
           <button id="exitFullScreenBtn" class="exit-fullscreen">
               <i class="fa fa-compress"></i>
           </button>
-          <!-- Container do calendário -->
-          <div id="calendarContainer">
-            <div id="calendar"></div>
-          </div>
 
           <!-- Legenda dos Status -->
           <?php if ($userInfo['id_nivel'] != 3) : ?>
@@ -176,7 +177,7 @@
           Solicitações
         </button>
       </h2>
-      <div id="collapseTable" class="accordion-collapse collapse" aria-labelledby="headingTable" data-bs-parent="#accordionExample">
+      <div id="collapseTable" class="accordion-collapse collapse" aria-labelledby="headingTable" data-bs-parent="#accordionCalendar">
         <div class="accordion-body">
           
           <table id="listaEventos" class="display" style="width:100%;">
