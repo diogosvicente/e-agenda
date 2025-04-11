@@ -32,7 +32,7 @@ class FullCalendarController extends ResourceController
         $statusList = $this->statusDefinicaoModel->getAllOrdered();
         
         if ($userInfo['id_nivel'] == 3) {
-            $eventList = $this->eventoModel->getEventosPorUsuario($userInfo['id_nivel'] == 3);
+            $eventList = $this->eventoModel->getEventosPorUsuario($userInfo['id_usuario']);
         } else {
             $eventList = $this->eventoModel->getEventos();
         }
@@ -76,7 +76,7 @@ class FullCalendarController extends ResourceController
             }
         }
 
-        $eventos = $this->eventoModel->getEventosWithEspacosAndPredios();
+        $eventos = $this->eventoModel->getEventosWithEspacosAndPredios($this->userInfo['id_nivel'] < 3 ? 1 : 0);
         $events = [];
 
         foreach ($eventos as $evento) {
@@ -90,7 +90,8 @@ class FullCalendarController extends ResourceController
                 'resourceId' => $resourceId,
                 'start' => $evento->start,
                 'end' => $evento->end,
-                'title' => $evento->evento_nome
+                'title' => $evento->evento_nome,
+                'evento_status' => $evento->evento_status
             ];
         }
 

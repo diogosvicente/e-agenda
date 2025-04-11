@@ -31,21 +31,32 @@ class EventoModel extends Model
     ];
     protected $returnType = 'object';
 
-    public function getEventosWithEspacosAndPredios()
+    public function getEventosWithEspacosAndPredios($isAdmin = false)
     {
-        return $this->select('
-                eventos.id AS evento_id,
-                eventos.nome AS evento_nome,
-                evento_espaco_data_hora.id AS evento_espaco_id,
-                evento_espaco_data_hora.id_espaco AS resource_id,
-                evento_espaco_data_hora.data_hora_inicio AS start,
-                evento_espaco_data_hora.data_hora_fim AS end,
-                predio.id AS predio_id,
-                predio.nome AS predio_nome
-            ')
-            ->join('evento_espaco_data_hora', 'evento_espaco_data_hora.id_evento = eventos.id')
-            ->join('predio', 'predio.id = evento_espaco_data_hora.id_predio', 'left')
-            ->findAll();
+        $builder = $this->select('
+            eventos.id AS evento_id,
+            eventos.nome AS evento_nome,
+            evento_espaco_data_hora.id AS evento_espaco_id,
+            evento_espaco_data_hora.id_espaco AS resource_id,
+            evento_espaco_data_hora.data_hora_inicio AS start,
+            evento_espaco_data_hora.data_hora_fim AS end,
+            predio.id AS predio_id,
+            predio.nome AS predio_nome,
+            (SELECT es.id_status 
+            FROM evento_status AS es 
+            WHERE es.id_evento = eventos.id 
+            ORDER BY es.created_at DESC 
+            LIMIT 1) AS evento_status
+        ')
+        ->join('evento_espaco_data_hora', 'evento_espaco_data_hora.id_evento = eventos.id')
+        ->join('predio', 'predio.id = evento_espaco_data_hora.id_predio', 'left');
+
+        if (!$isAdmin) {
+            // Se o usuário não for administrador, exibe apenas os eventos confirmados (status 4)
+            $builder->where("EXISTS(SELECT 1 FROM evento_status WHERE evento_status.id_evento = eventos.id AND evento_status.id_status = 4)");
+        }
+
+        return $builder->findAll();
     }
 
     /**
@@ -85,7 +96,6 @@ class EventoModel extends Model
         
         return $this->findAll();
     }
-
 
     public function getEventosPorUsuario($id_usuario)
     {

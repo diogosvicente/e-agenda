@@ -151,7 +151,7 @@ if (!function_exists('formatar_assinatura_eletronica_aprovador')) {
                             <td style="padding-left:10px;">
                                 <strong>' . $nomeAssinante . '</strong><br>
                                 Em: ' . $dataAssinatura . '<br>
-                                <em>Documento assinado eletronicamente e válido para todos os fins legais.</em>
+                                <em>Documento assinado eletronicamente por meio de senha.</em>
                             </td>
                         </tr>
                     </table>
@@ -217,7 +217,7 @@ if (!function_exists('formatar_assinatura_eletronica_confirmado')) {
                             <td style="padding-left:10px;">
                                 <strong>' . $nomeConfirmador . '</strong><br>
                                 Em: ' . $dataConfirmacao . '<br>
-                                <em>Documento confirmado digitalmente e válido para todos os fins legais.</em>
+                                <em>Documento assinado eletronicamente por meio de senha.</em>
                             </td>
                         </tr>
                     </table>

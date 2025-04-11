@@ -4,7 +4,7 @@
 <script src="<?php echo base_url('public/assets/vendor/fullcalendar-scheduler-6.1.15/dist/index.global.js'); ?>"></script>
 <script src="<?php echo base_url('public/assets/vendor/sweet-alert/sweetalert2@11.js'); ?>"></script>
 
-<?php //echo "<pre>"; dd(print_r($eventList)); ?>
+<?php //echo "<pre>"; dd(print_r($userInfo)); ?>
 
 <script>
   $(document).ready(function () {
@@ -12,8 +12,19 @@
     let calendarEl = document.getElementById('calendar');
     let today = new Date().toISOString().split('T')[0];
 
+    // Mapeamento de cores para cada status, conforme o array $statusList
+    let statusColors = {
+      1: '#f39c12', // Início: Assinatura aprovador pendente
+      2: '#8e44ad', // Solicitado: Assinado pelo aprovador
+      3: '#2980b9', // Recebido: Em análise
+      4: '#27ae60', // Agendado: Confirmado
+      5: '#c0392b', // Recusado: Explicar motivo
+      6: '#7f8c8d'  // Cancelado: Solicitação cancelada
+    };
+
     $.getJSON("<?php echo base_url('calendario/data'); ?>", function (data) {
 
+      console.log(data.events);
       // Cria um mapa de espaços para buscas rápidas
       let espacosMap = {};
       data.resources.forEach(predio => {
@@ -28,8 +39,8 @@
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         locale: 'pt-br',
         initialDate: today,
+        editable: false,
         initialView: 'resourceTimelineDay',
-        editable: true,
         selectable: true,
         nowIndicator: true,
         aspectRatio: 1.8,
@@ -53,6 +64,15 @@
         resourceGroupField: '',
         resources: data.resources,
         events: data.events,
+        eventDataTransform: function(eventData) {
+          // Obtém o status do evento e define a cor baseada no mapeamento
+          let status = eventData.evento_status;
+          // Caso o status não esteja mapeado, usa uma cor padrão.
+          let color = statusColors[status] || '#3788d8';
+          eventData.backgroundColor = color;
+          eventData.borderColor = color;
+          return eventData;
+        },
         resourceOrder: false,
 
         // Clique no evento: exibe os detalhes no modal Bootstrap
@@ -87,6 +107,7 @@
   });
 </script>
 
+
 <!-- Estrutura dos Accordions -->
 <div class="container mt-3">
 
@@ -104,7 +125,7 @@
           <div class="button-container">
             <button id="fullScreenBtn" class="btn btn-primary"><i class="fa fa-expand"></i></button>
             <a href="<?php echo base_url('agendamento/novo'); ?>">
-              <button class="btn btn-primary">Fazer Agendamento</button>
+              <button class="btn btn-primary">Agendar Espaço</button>
             </a>
           </div>
           <!-- Botão para sair da tela cheia -->
@@ -115,6 +136,35 @@
           <div id="calendarContainer">
             <div id="calendar"></div>
           </div>
+
+          <!-- Legenda dos Status -->
+          <?php if ($userInfo['id_nivel'] != 3) : ?>
+            <div class="status-legend" style="margin-bottom: 20px;">
+                <h5>Legenda dos Status</h5>
+                <ul style="list-style: none; padding: 0;">
+                    <?php
+                        // Mapeamento de cores de acordo com cada status
+                        $coresStatus = [
+                            1 => '#f39c12', // Início: Assinatura aprovador pendente
+                            2 => '#8e44ad', // Solicitado: Assinado pelo aprovador
+                            3 => '#2980b9', // Recebido: Em análise
+                            4 => '#27ae60', // Agendado: Confirmado
+                            5 => '#c0392b', // Recusado: Explicar motivo
+                            6 => '#7f8c8d'  // Cancelado: Solicitação cancelada
+                        ];
+                        
+                        foreach ($statusList as $status):
+                            $cor = isset($coresStatus[$status->id]) ? $coresStatus[$status->id] : '#000';
+                    ?>
+                        <li style="display: inline-block; margin-right: 15px; font-size: 13px;">
+                            <span style="display:inline-block; width:12px; height:12px; background-color: <?php echo $cor; ?>; margin-right: 5px; vertical-align: middle;"></span>
+                            <strong><?php echo $status->nome; ?></strong> - <?php echo $status->descricao; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+          <?php endif; ?>
+
         </div>
       </div>
     </div>
@@ -133,6 +183,7 @@
             <thead>
               <tr>
                 <th scope="col">Data</th>
+                <th scope="col">#</th>
                 <th scope="col">Nome</th>
                 <th scope="col">Departamento</th>
                 <th scope="col">Data Solicitação</th>
@@ -141,9 +192,12 @@
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($eventList as $evento): ?>
+              <?php 
+                  $count = 1;
+                  foreach ($eventList as $evento): ?>
                 <tr>
                   <td scope="col"><?php echo $evento->created_at; ?></td>
+                  <td scope="col"><?php echo $count++; ?></td>
                   <td scope="col"><?php echo $evento->evento_nome; ?></td>
                   <td scope="col"><?php echo tradeNameByID($evento->id_unidade_solicitante, 'unidades', 'nome'); ?></td>
                   <td scope="col"><?php echo date("d/m/Y à\s h:i", strtotime($evento->created_at)); ?></td>
@@ -187,9 +241,9 @@
 
               // Captura a alteração de status e confirma a ação com um alerta bonito.
               $('.status-select').change(function(){
-                var novoStatus = $(this).val();
-                var idEvento = $(this).data('evento-id');
-                var $select = $(this);
+                let novoStatus = $(this).val();
+                let idEvento = $(this).data('evento-id');
+                let $select = $(this);
 
                 Swal.fire({
                   title: "Confirmação",
