@@ -13,7 +13,6 @@ if (!function_exists('formatar_evento_aprovacao')) {
      */
     function formatar_evento_aprovacao($evento, $datasHorarios, $recursos, $status)
     {
-        $responsavel = "";
         if ($evento->id_responsavel == 0) {
             $nome_responsavel = $evento->nome_responsavel;
             $unidade_responsavel = $evento->nome_unidade_responsavel;
@@ -81,8 +80,154 @@ if (!function_exists('formatar_evento_aprovacao')) {
         } else {
             $html .= '<p>Sem status registrado.</p>';
         }
+
+        // Insere o bloco de assinatura eletrônica, se houver status com id 2 (significa aprovado/assinado)
+        $html .= formatar_assinatura_eletronica_aprovador(array(
+            'status'        => $status,
+            'id_aprovador'  => $evento->id_aprovador,
+            'created_at'    => $evento->created_at
+        ));
+
+        $html .= formatar_assinatura_eletronica_confirmado(array(
+            'status'        => $status,
+            'id_aprovador'  => $evento->id_aprovador,
+            'created_at'    => $evento->created_at
+        ));
         
         $html .= '</div>';
         return $html;
     }
 }
+
+if (!function_exists('formatar_assinatura_eletronica_aprovador')) {
+    /**
+     * Formata e retorna o bloco da assinatura eletrônica (semelhante à do SEI) para eventos assinados.
+     *
+     * Esta função busca em $status algum registro com id_status igual a 2 e, caso encontre,
+     * gera um bloco HTML com a assinatura eletrônica. É importante que, no registro de status,
+     * haja a informação do nome do aprovador (ex.: no campo "nome_aprovador") e a data da assinatura (ex.: "created_at").
+     *
+     * @param array $status Array de objetos de status do evento.
+     *
+     * @return string Bloco HTML da assinatura eletrônica ou string vazia se não houver.
+     */
+    function formatar_assinatura_eletronica_aprovador($data)
+    {
+        // Percorre os status para verificar se existe um status com id 2 (assinado)
+        foreach ($data['status'] as $s) {
+            if ($s->id_status == 2) {
+                // Se houver, obtém os dados necessários
+                $nomeAssinante   = isset($data['id_aprovador']) ? tradeNameByID($data['id_aprovador'], 'usuarios', 'nome') : 'Assinante Desconhecido';
+                $dataAssinatura  = isset($s->created_at) ? date("d/m/Y H:i", strtotime($s->created_at)) : '';
+
+                // Cria um SVG inline para a imagem de assinatura com a marca e-Prefeitura
+                $svg = '<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="0" width="400" height="100" fill="none" stroke="#000" stroke-width="2"/>
+                    <text x="20" y="40" font-family="Arial, sans-serif" font-size="24" fill="#000">e-Prefeitura</text>
+                    <text x="20" y="70" font-family="Arial, sans-serif" font-size="12" fill="#000">Documento assinado digitalmente</text>
+                    <g transform="translate(300,20)">
+                        <!-- Desenha a curva da parte superior do cadeado -->
+                        <path d="M20,30 C20,10 60,10 60,30" fill="none" stroke="#000" stroke-width="2"/>
+                        <!-- Corpo do cadeado com cantos arredondados -->
+                        <rect x="20" y="30" width="40" height="40" rx="5" ry="5" fill="none" stroke="#000" stroke-width="2"/>
+                        <!-- Chave do cadeado: círculo e linha -->
+                        <circle cx="40" cy="50" r="3" fill="#000"/>
+                        <line x1="40" y1="53" x2="40" y2="60" stroke="#000" stroke-width="2"/>
+                    </g>
+                </svg>';
+                // Codifica o SVG para usar como Data URI
+                $imgData = 'data:image/svg+xml;base64,' . base64_encode($svg);
+
+                
+                // Monta o bloco de assinatura semelhante ao do SEI
+                $assinaturaHTML = '
+                <div class="assinatura-eletronica" style="border:1px solid #000; padding:10px; margin-top:20px; font-size:10px;">
+                <div style="text-align:right; font-size:9px; color:#555; margin-bottom:5px;">Assinatura do Diretor(a)</div>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <tr style="vertical-align: middle;">
+                            <td style="width:60px; text-align: center;">
+                                <img src="' . $imgData . '" alt="Assinatura Eletrônica e-Prefeitura" style="height:50px;">
+                            </td>
+                            <td style="padding-left:10px;">
+                                <strong>' . $nomeAssinante . '</strong><br>
+                                Em: ' . $dataAssinatura . '<br>
+                                <em>Documento assinado eletronicamente e válido para todos os fins legais.</em>
+                            </td>
+                        </tr>
+                    </table>
+                </div>';
+                
+                // Retorna o bloco assim que encontrar o status 2
+                return $assinaturaHTML;
+            }
+        }
+        // Se não houver status de assinatura, retorna vazio.
+        return "";
+    }
+}
+
+if (!function_exists('formatar_assinatura_eletronica_confirmado')) {
+    /**
+     * Formata e retorna o bloco da assinatura eletrônica para eventos confirmados (status 4).
+     *
+     * Esta função verifica se há algum registro de status com id_status igual a 4 e, caso encontre,
+     * gera um bloco HTML com a assinatura eletrônica de confirmação, utilizando a marca e-Prefeitura.
+     * É importante que, no registro de status, haja a informação do nome do confirmador e a data da confirmação.
+     *
+     * @param array $data Dados passados com as chaves 'status', 'id_confirmador' e 'created_at'
+     *
+     * @return string Bloco HTML da assinatura eletrônica de confirmação ou string vazia se não houver.
+     */
+    function formatar_assinatura_eletronica_confirmado($data)
+    {
+        // Percorre os status para verificar se existe um status com id_status igual a 4 (confirmado)
+        foreach ($data['status'] as $s) {
+            if ($s->id_status == 4) {
+                // Obtém os dados necessários
+                $nomeConfirmador = 'DESEG/DIPOC (Divisão de Programação e Controle)';
+                $dataConfirmacao = isset($s->created_at) ? date("d/m/Y H:i", strtotime($s->created_at)) : '';
+
+                // Cria um SVG inline para a imagem de confirmação com a marca e-Prefeitura
+                $svg = '<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="0" width="400" height="100" fill="none" stroke="#000" stroke-width="2"/>
+                    <text x="20" y="40" font-family="Arial, sans-serif" font-size="24" fill="#000">e-Prefeitura</text>
+                    <text x="20" y="70" font-family="Arial, sans-serif" font-size="12" fill="#000">Documento confirmado digitalmente</text>
+                    <g transform="translate(300,20)">
+                        <!-- Desenha a curva da parte superior do cadeado -->
+                        <path d="M20,30 C20,10 60,10 60,30" fill="none" stroke="#000" stroke-width="2"/>
+                        <!-- Corpo do cadeado com cantos arredondados -->
+                        <rect x="20" y="30" width="40" height="40" rx="5" ry="5" fill="none" stroke="#000" stroke-width="2"/>
+                        <!-- Chave do cadeado: círculo e linha -->
+                        <circle cx="40" cy="50" r="3" fill="#000"/>
+                        <line x1="40" y1="53" x2="40" y2="60" stroke="#000" stroke-width="2"/>
+                    </g>
+                </svg>';
+                // Codifica o SVG para usar como Data URI
+                $imgData = 'data:image/svg+xml;base64,' . base64_encode($svg);
+
+                // Monta o bloco de assinatura para confirmação, com um cabeçalho discreto informando o confirmador
+                $assinaturaHTML = '
+                <div class="assinatura-eletronica-confirmado" style="border:1px solid #000; padding:10px; margin-top:20px; font-size:10px;">
+                    <div style="text-align:right; font-size:9px; color:#555; margin-bottom:5px;">Assinatura do Confirmador</div>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <tr style="vertical-align: middle;">
+                            <td style="width:60px; text-align: center;">
+                                <img src="' . $imgData . '" alt="Assinatura Eletrônica e-Prefeitura Confirmado" style="height:50px;">
+                            </td>
+                            <td style="padding-left:10px;">
+                                <strong>' . $nomeConfirmador . '</strong><br>
+                                Em: ' . $dataConfirmacao . '<br>
+                                <em>Documento confirmado digitalmente e válido para todos os fins legais.</em>
+                            </td>
+                        </tr>
+                    </table>
+                </div>';
+
+                return $assinaturaHTML;
+            }
+        }
+        // Se não houver status de confirmação, retorna vazio.
+        return "";
+    }
+}
+

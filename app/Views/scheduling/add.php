@@ -353,7 +353,7 @@
                                         <div class="row mt-3 data-hora-entry">
                                             <div class="col-sm-4">
                                                 <label for="espacos_0_data_inicio" class="form-label">Data Início: *</label>
-                                                <input value="2025-04-04" type="date" name="espacos[0][data_inicio]" id="espacos_0_data_inicio" class="form-control" required>
+                                                <input value="2025-04-11" type="date" name="espacos[0][data_inicio]" id="espacos_0_data_inicio" class="form-control" required>
                                                 <div id="divError-espacos_0_data_inicio" class="invalid-feedback"></div>
                                                 <div id="divNotice-espacos_0_data_inicio" class="notice-feedback"></div>
                                             </div>
